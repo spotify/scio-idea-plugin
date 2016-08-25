@@ -2,6 +2,7 @@ package com.spotify.scio
 
 import java.nio.charset.Charset
 
+import com.google.common.base.Charsets
 import com.google.common.io.Files
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -10,9 +11,20 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 class ScioInjector extends SyntheticMembersInjector {
   val logger = Logger.getInstance(classOf[ScioInjector])
 
+  // This has to stay in sync with the Scio implementation
+  private def getBQClassCacheDir = {
+    //TODO: add this as key/value settings with default etc
+    if (sys.props("bigquery.class.cache.directory") != null) {
+      sys.props("bigquery.class.cache.directory")
+    } else {
+      sys.props("java.io.tmpdir") + "bigquery-classes"
+    }
+  }
+
   def findClassFile(clazz: String): Option[java.io.File] = {
-    log("Looking for " + sys.props("user.dir") + s"/.bigquery/classes/${clazz}.scala")
-    val classFile = new java.io.File(sys.props("user.dir") + s"/.bigquery/classes/${clazz}.scala")
+    val classFielePath = getBQClassCacheDir + s"/$clazz.scala"
+    val classFile = new java.io.File(classFielePath)
+    log(s"Looking for $classFielePath" )
     if (classFile.exists()) Some(classFile) else None
   }
 
