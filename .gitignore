@@ -1,0 +1,14 @@
+target
+*.swp
+.DS_Store
+.bigquery
+.scio_repl
+.idea
+**/*.iml
+!.idea/vcs.xml
+!.idea/ant.xml
+!.idea/uiDesigner.xml
+/classes
+/dist
+/out
+/idea
