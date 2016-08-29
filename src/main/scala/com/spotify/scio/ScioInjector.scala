@@ -3,8 +3,10 @@ package com.spotify.scio
 import java.nio.charset.Charset
 
 import com.google.common.base.Charsets
+import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
@@ -24,6 +26,7 @@ class ScioInjector extends SyntheticMembersInjector {
 
 
   // This has to stay in sync with the Scio implementation
+  // otherwise we would have to pull in Scio deps
   private def getBQClassCacheDir = {
     //TODO: add this as key/value settings with default etc
     if (sys.props("bigquery.class.cache.directory") != null) {
@@ -33,24 +36,39 @@ class ScioInjector extends SyntheticMembersInjector {
     }
   }
 
-  def findClassFile(clazz: String): Option[java.io.File] = {
-    val classFielePath = getBQClassCacheDir + s"/$clazz.scala"
+  def findClassFile(fileName: String): Option[java.io.File] = {
+    val classFielePath = getBQClassCacheDir + s"/$fileName"
     val classFile = new java.io.File(classFielePath)
-    log(s"Looking for $classFielePath" )
-    if (classFile.exists()) Some(classFile) else None
+    if (classFile.exists()) {
+      logger.debug(s"Found $classFielePath")
+      Some(classFile)
+    } else {
+      logger.error(s"""|Scio plugin could not find scala files for code completion.
+                       |Please compile the project. Was looking for: $classFielePath""".stripMargin)
+      None
+    }
   }
 
-  def log(s: String): Unit = {
-    logger.debug(s)
+  private def genHashForMacro(owner: String, srcFile: String): String = {
+    Hashing.murmur3_32().newHasher()
+      .putString(owner, Charsets.UTF_8)
+      .putString(srcFile, Charsets.UTF_8)
+      .hash().toString
   }
 
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
+    //TODO: what if the annotation is outside the object/class?
     source.members.flatMap {
       case c: ScClass if c.annotationNames.exists(annotations.contains) =>
-        val annotation = c.annotationNames.find(annotations.contains).get
-        log(s"Found $annotation in ${source.getName}")
 
-        val caseClasses = findClassFile(c.getName).map(f => {
+        val fileName = c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile.getCanonicalPath
+
+        val annotation = c.annotationNames.find(annotations.contains).get
+        logger.debug(s"Found $annotation in ${source.getTruncedQualifiedName}")
+
+        val hash = genHashForMacro(source.getTruncedQualifiedName, fileName)
+
+        val caseClasses = findClassFile(s"${c.getName}-$hash.scala").map(f => {
           import collection.JavaConverters._
           Files.readLines(f, Charset.defaultCharset()).asScala.filter(_.contains("case class"))
         }).getOrElse(Seq.empty)
