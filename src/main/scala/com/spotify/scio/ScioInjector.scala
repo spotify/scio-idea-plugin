@@ -61,14 +61,16 @@ class ScioInjector extends SyntheticMembersInjector {
     source.members.flatMap {
       case c: ScClass if c.annotationNames.exists(annotations.contains) =>
 
-        val fileName = c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile.getCanonicalPath
+        // For some reason sometimes [[getVirtualFile]] returns null. I don't know why.
+        val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
+          .map(_.getCanonicalPath)
 
         val annotation = c.annotationNames.find(annotations.contains).get
         logger.debug(s"Found $annotation in ${source.getTruncedQualifiedName}")
 
-        val hash = genHashForMacro(source.getTruncedQualifiedName, fileName)
+        val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
 
-        val caseClasses = findClassFile(s"${c.getName}-$hash.scala").map(f => {
+        val caseClasses = hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
           import collection.JavaConverters._
           Files.readLines(f, Charset.defaultCharset()).asScala.filter(_.contains("case class"))
         }).getOrElse(Seq.empty)
