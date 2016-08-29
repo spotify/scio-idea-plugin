@@ -25,8 +25,10 @@ class ScioInjector extends SyntheticMembersInjector {
                                 s"$BQTNamespace.toTable")
 
 
-  // This has to stay in sync with the Scio implementation
-  // otherwise we would have to pull in Scio deps
+  /**
+   * Finds BigQuery cache directory, my be in sync with Scio implementation, otherwise plugin will
+   * not be able to find scala files.
+   */
   private def getBQClassCacheDir = {
     //TODO: add this as key/value settings with default etc
     if (sys.props("bigquery.class.cache.directory") != null) {
@@ -43,12 +45,16 @@ class ScioInjector extends SyntheticMembersInjector {
       logger.debug(s"Found $classFilePath")
       Some(classFile)
     } else {
-      logger.error(s"""|Scio plugin could not find scala files for code completion.
-                       |Please (re)compile the project. Missing: $classFilePath""".stripMargin)
+      logger.error(
+        s"""|Scio plugin could not find scala files for code completion. Please (re)compile the project.
+            |Missing: $classFilePath""".stripMargin)
       None
     }
   }
 
+  /**
+   * Computes hash for macro - the hash must be consistent with hash implementation in Scio.
+   */
   private def genHashForMacro(owner: String, srcFile: String): String = {
     Hashing.murmur3_32().newHasher()
       .putString(owner, Charsets.UTF_8)
@@ -56,12 +62,16 @@ class ScioInjector extends SyntheticMembersInjector {
       .hash().toString
   }
 
+  /**
+   * Main method of the plugin. Injects syntactic inner members like case classes and companion
+   * objects, makes IntelliJ happy about BigQuery macros. Assumes macro in enclosed within
+   * class/object.
+   */
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
-    //TODO: what if the annotation is outside the object/class?
     source.members.flatMap {
       case c: ScClass if c.annotationNames.exists(annotations.contains) =>
 
-        // For some reason sometimes [[getVirtualFile]] returns null. I don't know why.
+        // For some reason sometimes [[getVirtualFile]] returns null, thus Option. I don't know why.
         val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
           .map(_.getCanonicalPath)
 
@@ -83,7 +93,7 @@ class ScioInjector extends SyntheticMembersInjector {
 
         val tupledMethod = getTupledMethod(c, caseClasses)
 
-        // TODO: missing extends and traits:
+        // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
         val companion = s"""|object ${c.getName} {
                             |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
@@ -117,5 +127,4 @@ class ScioInjector extends SyntheticMembersInjector {
       case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( $propsTypes ), ${c.getName} ] = ???"
       case _ => ""
     }
-  }
 }
