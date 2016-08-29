@@ -26,6 +26,15 @@ If you get the location (EU/US) error - you need to add location setting to scal
 The easiest way is to click on the weird looking "clock" in the bottom-right corner - it's actually a shortcut to scala compiler.
 If it's already running - stop it, then press `Configure...` and in `JVM parameters` add `-Dbigquery.staging_dataset.location=EU`.
 
+## User interaction
+
+If Scio plugin can't find scala files, it will log an error via IntelliJ Event Log, which you should see via red bubble
+in the lower-right corner. The message should inform you that, you need to recompile the project. Follow the instructions.
+
+If you rebuild the project, plugin should react in a matter of seconds - if completion is still not there,
+poke the code around, wait a minute or two. At this point plugin simply reacts to IntelliJ events,
+which sporadicly take a while to propegate.
+
 # Logging
 
 This pluging is using IDEA diagnostic logger, you can find the log file
