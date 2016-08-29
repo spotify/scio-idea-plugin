@@ -37,14 +37,14 @@ class ScioInjector extends SyntheticMembersInjector {
   }
 
   def findClassFile(fileName: String): Option[java.io.File] = {
-    val classFielePath = getBQClassCacheDir + s"/$fileName"
-    val classFile = new java.io.File(classFielePath)
+    val classFilePath = getBQClassCacheDir + s"/$fileName"
+    val classFile = new java.io.File(classFilePath)
     if (classFile.exists()) {
-      logger.debug(s"Found $classFielePath")
+      logger.debug(s"Found $classFilePath")
       Some(classFile)
     } else {
       logger.error(s"""|Scio plugin could not find scala files for code completion.
-                       |Please compile the project. Was looking for: $classFielePath""".stripMargin)
+                       |Please compile the project. Was looking for: $classFilePath""".stripMargin)
       None
     }
   }
