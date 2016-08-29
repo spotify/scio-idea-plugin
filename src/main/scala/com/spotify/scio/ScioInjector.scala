@@ -44,7 +44,7 @@ class ScioInjector extends SyntheticMembersInjector {
       Some(classFile)
     } else {
       logger.error(s"""|Scio plugin could not find scala files for code completion.
-                       |Please compile the project. Was looking for: $classFilePath""".stripMargin)
+                       |Please (re)compile the project. Missing: $classFilePath""".stripMargin)
       None
     }
   }
