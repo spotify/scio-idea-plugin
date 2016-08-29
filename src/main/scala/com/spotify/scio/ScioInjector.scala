@@ -144,4 +144,5 @@ class ScioInjector extends SyntheticMembersInjector {
       case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( $propsTypes ), ${c.getName} ] = ???"
       case _ => ""
     }
+  }
 }
