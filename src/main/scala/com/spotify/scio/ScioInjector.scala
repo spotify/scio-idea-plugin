@@ -51,7 +51,7 @@ class ScioInjector extends SyntheticMembersInjector {
     if (sys.props("bigquery.class.cache.directory") != null) {
       sys.props("bigquery.class.cache.directory")
     } else {
-      sys.props("java.io.tmpdir") + "bigquery-classes"
+      sys.props("java.io.tmpdir") + "/bigquery-classes"
     }
   }
 
