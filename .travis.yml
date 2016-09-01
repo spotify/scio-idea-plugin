@@ -8,6 +8,9 @@ cache:
     - $HOME/.sbt/boot
     - $HOME/.ivy2/cache
 
+script:
+  - sbt packagePlugin
+
 notifications:
   email:
     - rav@spotify.com
