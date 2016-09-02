@@ -7,9 +7,7 @@ Scio plugin for IDEA, enables BigQuery macro support in IDEA.
 
 # Install
 
-Download most recent [release](https://github.com/spotify/scio-idea-plugin/releases).
-
-Inside IntelliJ: `Preferences` -> `Plugins` -> `Install plugin from disk`
+Inside IntelliJ, `Preferences` -> `Plugins` -> `Browse repositories ...` and search `Scio`.
 
 ## Build locally:
 
@@ -18,6 +16,7 @@ sbt packagePlugin
 ```
 
 Zipped and ready to install plugin is inside `target`.
+To install, inside IntelliJ: `Preferences` -> `Plugins` -> `Install plugin from disk`
 
 # Usage
 
