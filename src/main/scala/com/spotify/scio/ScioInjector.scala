@@ -110,9 +110,14 @@ class ScioInjector extends SyntheticMembersInjector {
 
         val tupledMethod = getTupledMethod(c, caseClasses)
 
+        val applyPropsSignature = getConstructorProps(caseClasses)
+          .getOrElse(Seq.empty)
+          .mkString(" , ")
+
         // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
         val companion = s"""|object ${c.getName} {
+                            |  def apply( $applyPropsSignature ) : ${c.getName} = ???
                             |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
                             |  def toTableRow: _root_.scala.Function1[ ${c.getName}, _root_.com.google.api.services.bigquery.model.TableRow] = ???
                             |  def schema: _root_.com.google.api.services.bigquery.model.TableSchema = ???
@@ -126,22 +131,22 @@ class ScioInjector extends SyntheticMembersInjector {
     }
   }
 
-  private def getTupledMethod(c: ScClass, caseClasses: Seq[String]): String = {
+  private def getConstructorProps(caseClasses: Seq[String]): Option[Seq[String]] = {
     // TODO: duh. who needs regex ... but seriously tho, should this be regex?
-    val props = caseClasses
+    caseClasses
       .find(_.contains("extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation"))
       .map(_.split("[()]"))
       .map(_.filter(_.contains(" : "))) // get only parameter part
       .map(_.flatMap(_.split(","))) // get individual parameter
+  }
 
-    val numberOfProp = props.getOrElse(Array.empty).length
+  private def getTupledMethod(c: ScClass, caseClasses: Seq[String]): String = {
+    val props = getConstructorProps(caseClasses).getOrElse(Seq.empty)
 
-    val propsTypes = props.getOrElse(Array.empty)
-      .map(_.split(" : ")(1).trim) // get parameter types
-      .mkString(" , ")
+    val types = props.map(_.split(" : ")(1).trim) // get parameter types
 
-    numberOfProp match {
-      case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( $propsTypes ), ${c.getName} ] = ???"
+    props.size match {
+      case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( ${types.mkString(" , ")} ), ${c.getName} ] = ???"
       case _ => ""
     }
   }
