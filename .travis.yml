@@ -14,3 +14,13 @@ script:
 notifications:
   email:
     - rav@spotify.com
+
+deploy:
+  provider: releases
+  api_key:
+    secure: J/4G/LM7JTp5zHnWFLihjUzLfLN/HHkZKvY7GkKFOM+/1keGY4zjO1PJrokMKBGC9SxBavdUmtmVxqpRP5T3ISCXXAeEv2C9BsMWzU1SHGr3GKhDiPm2IRj1c+TQX3fPvJJcv88fJWvZOTU5ln9LPGN73DtvB4zOaq3lAgCgi8Ancl2/V1O8AiQGymCFhpc5rnvb+HyGqVmuYoTI6F1n/HO1sJvd7vX+jSOHIzSUSxSI1r/LO9EUJ+J2BMzBPBQA0U38AIQjq+kXCCGDR/Z+AxrP1xZijCR0LjmjspVKtYsYrN9YkvT71fRTmRnWB8WUCNvcBahHlZfh2GSA91AjrAAQZRj/MHN6oGV/qexjo6xpvuiJHwZgFzSmcfCezbLwiUF0KXd2LYMDKNQkkpGmgC5Ont00covaT5bczmtYwIPpo/cGfTy8/JFIf1eGkKD2fcCLrTARxWnOWY1VT76DJeZObRD+Taw2J/DZOhej+LO1udDmF8/egtELUw1I9KtWo9oOeKnnV5/ZvH4yp0tprmIyW4yocgWkJ4kxRcqvHUTwDs0fuLd2yA4+r7QXiFlmnB1WnqSHprjU0s3E56UscMUNECCObTuUYkeqEBCypXl1McEefc/1Ucf47eE3wmmcYzso/d7tC+qIZJ1OM8M9hTBpSoN4ZzXVD95K5ao8c5U=
+  file: "target/scio-idea-plugin.zip"
+  skip_cleanup: true
+  on:
+    scala: 2.11.8
+    tags: true
