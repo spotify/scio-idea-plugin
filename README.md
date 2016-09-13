@@ -34,6 +34,8 @@ If you get the location (EU/US) error - you need to add location setting to scal
 The easiest way is to click on the weird looking "clock" in the bottom-right corner - it's actually a shortcut to scala compiler.
 If it's already running - stop it, then press `Configure...` and in `JVM parameters` add `-Dbigquery.staging_dataset.location=EU`.
 
+You should upgrade Scio to version >= `0.2.1` - starting from that version `bigquery.staging_dataset.location` is obsolete.
+
 ## User interaction
 
 If Scio plugin can't find scala files, it will log an error via IntelliJ Event Log, which you should see via red bubble
