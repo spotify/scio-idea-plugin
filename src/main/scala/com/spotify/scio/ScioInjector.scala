@@ -140,7 +140,12 @@ class ScioInjector extends SyntheticMembersInjector {
                             |  $tupledMethod
                             |}""".stripMargin
 
-        caseClasses ++ Seq(companion)
+        if (caseClasses.isEmpty) {
+          Seq.empty
+        } else {
+          caseClasses ++ Seq(companion)
+        }
+
       case _ => Seq.empty
     }
   }
