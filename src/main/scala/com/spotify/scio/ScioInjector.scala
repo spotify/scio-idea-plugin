@@ -27,6 +27,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
+import scala.collection.mutable
+
 class ScioInjector extends SyntheticMembersInjector {
   private val logger = Logger.getInstance(classOf[ScioInjector])
 
@@ -40,6 +42,9 @@ class ScioInjector extends SyntheticMembersInjector {
                                 fromTable,
                                 s"$BQTNamespace.fromSchema",
                                 s"$BQTNamespace.toTable")
+
+  private val alertEveryMissedXInvocations = 5
+  private val classMissed = mutable.HashMap.empty[String, Int].withDefaultValue(0)
 
 
   /**
@@ -62,11 +67,18 @@ class ScioInjector extends SyntheticMembersInjector {
     val classFile = new java.io.File(classFilePath)
     if (classFile.exists()) {
       logger.debug(s"Found $classFilePath")
+      classMissed(fileName) = 0
       Some(classFile)
     } else {
-      logger.error(
-        s"""|Scio plugin could not find scala files for code completion. Please (re)compile the project.
-            |Missing: $classFilePath""".stripMargin)
+      classMissed(fileName) += 1
+      val errorMessage = s"""|Scio plugin could not find scala files for code completion. Please (re)compile the project.
+                             |Missing: $classFilePath""".stripMargin
+      if(classMissed(fileName) >= alertEveryMissedXInvocations) {
+        // reset counter
+        classMissed(fileName) = 0
+        logger.error(errorMessage)
+      }
+      logger.warn(errorMessage)
       None
     }
   }
