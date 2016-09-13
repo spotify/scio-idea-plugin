@@ -51,6 +51,8 @@ class ScioInjector extends SyntheticMembersInjector {
     if (sys.props("bigquery.class.cache.directory") != null) {
       sys.props("bigquery.class.cache.directory")
     } else {
+      // add `/` before bigquery-class - cause on Linux `java.io.tmpdir` comes without trailing `/`
+      // and double `/` is not a problem.
       sys.props("java.io.tmpdir") + "/bigquery-classes"
     }
   }
