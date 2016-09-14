@@ -34,7 +34,7 @@ class ScioInjector extends SyntheticMembersInjector {
 
   // Could not find a way to get fully qualified annotation names
   // even tho there is API, it does not return the annotations.
-  // For now stick with relative annotation name.
+  // For now stick with relative annotation names.
   private val BQTNamespace = "BigQueryType"
   private val fromQuery = s"$BQTNamespace.fromQuery"
   private val fromTable = s"$BQTNamespace.fromTable"
@@ -46,9 +46,8 @@ class ScioInjector extends SyntheticMembersInjector {
   private val alertEveryMissedXInvocations = 5
   private val classMissed = mutable.HashMap.empty[String, Int].withDefaultValue(0)
 
-
   /**
-   * Finds BigQuery cache directory, my be in sync with Scio implementation, otherwise plugin will
+   * Finds BigQuery cache directory, must be in sync with Scio implementation, otherwise plugin will
    * not be able to find scala files.
    */
   private def getBQClassCacheDir = {
@@ -95,14 +94,14 @@ class ScioInjector extends SyntheticMembersInjector {
 
   /**
    * Main method of the plugin. Injects syntactic inner members like case classes and companion
-   * objects, makes IntelliJ happy about BigQuery macros. Assumes macro in enclosed within
+   * objects, makes IntelliJ happy about BigQuery macros. Assumes macro is enclosed within
    * class/object.
    */
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
     source.members.flatMap {
       case c: ScClass if c.annotationNames.exists(annotations.contains) =>
 
-        // For some reason sometimes [[getVirtualFile]] returns null, thus Option. I don't know why.
+        // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
         val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
           .map(_.getCanonicalPath)
 
