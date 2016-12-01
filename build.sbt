@@ -9,10 +9,11 @@ lazy val scioIdeaPlugin: Project =
       scalaVersion := "2.11.7",
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
       ideaInternalPlugins := Seq(),
-      ideaExternalPlugins := Seq(IdeaPlugin.Zip("scala-plugin", url("https://plugins.jetbrains.com/files/1347/21610/scala-intellij-bin-1.9.2.zip"))),
+      ideaExternalPlugins := Seq(IdeaPlugin.Zip("scala-plugin", url("https://plugins.jetbrains.com/plugin/download?pr=&updateId=30351"))),
       aggregate in updateIdea := false,
       assemblyExcludedJars in assembly <<= ideaFullJars,
-      ideaBuild := "143.116.4" //IDEA 15 public preview,
+      ideaBuild := "163.7743.44",
+      libraryDependencies += "com.google.guava" % "guava" % "19.0"
     )
 
 lazy val ideaRunner: Project = project.in(file("ideaRunner"))

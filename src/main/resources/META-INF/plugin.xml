@@ -6,7 +6,7 @@
 
     <description>IntelliJ IDEA plugin for Scio - https://github.com/spotify/scio</description>
 
-    <idea-version since-build="143.0"/>
+    <idea-version since-build="163.0"/>
 
     <depends>org.intellij.scala</depends>
 

@@ -99,13 +99,13 @@ class ScioInjector extends SyntheticMembersInjector {
    */
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
     source.members.flatMap {
-      case c: ScClass if c.annotationNames.exists(annotations.contains) =>
+      case c: ScClass if c.annotations.map(_.getText).exists(t => annotations.exists(t.contains)) =>
 
         // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
         val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
           .map(_.getCanonicalPath)
 
-        val annotation = c.annotationNames.find(annotations.contains).get
+        val annotation = c.annotations.map(_.getText).find(t => annotations.exists(t.contains)).get
         logger.debug(s"Found $annotation in ${source.getTruncedQualifiedName}")
 
         val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
