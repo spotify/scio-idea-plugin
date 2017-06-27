@@ -117,7 +117,7 @@ class ScioInjector extends SyntheticMembersInjector {
 
         val extraCompanionMethod = annotation match {
           case a if a.contains(fromQuery) => "def query: _root_.java.lang.String = ???"
-          case a if a.contains(fromTable) => "def table: _root_.com.google.api.services.bigquery.model.TableReference = ???"
+          case a if a.contains(fromTable) => "def table: _root_.java.lang.String = ???"
           case _ => ""
         }
 
