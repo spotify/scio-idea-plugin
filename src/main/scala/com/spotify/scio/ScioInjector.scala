@@ -43,6 +43,11 @@ class ScioInjector extends SyntheticMembersInjector {
                                 s"$BQTNamespace.fromSchema",
                                 s"$BQTNamespace.toTable")
 
+  private val AvroTNamespace = "AvroType"
+  private val avroAnnotations = Seq(s"$AvroTNamespace.fromSchema",
+                                    s"$AvroTNamespace.fromPath",
+                                    s"$AvroTNamespace.toSchema")
+
   private val alertEveryMissedXInvocations = 5
   private val classMissed = mutable.HashMap.empty[String, Int].withDefaultValue(0)
 
@@ -61,7 +66,7 @@ class ScioInjector extends SyntheticMembersInjector {
     }
   }
 
-  def findClassFile(fileName: String): Option[java.io.File] = {
+  private def findClassFile(fileName: String): Option[java.io.File] = {
     val classFilePath = getBQClassCacheDir + s"/$fileName"
     val classFile = new java.io.File(classFilePath)
     if (classFile.exists()) {
@@ -100,32 +105,11 @@ class ScioInjector extends SyntheticMembersInjector {
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
     source.members.flatMap {
       case c: ScClass if c.annotations.map(_.getText).exists(t => annotations.exists(t.contains)) =>
-
-        // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
-        val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
-          .map(_.getCanonicalPath)
-
-        val annotation = c.annotations.map(_.getText).find(t => annotations.exists(t.contains)).get
-        logger.debug(s"Found $annotation in ${source.getTruncedQualifiedName}")
-
-        val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
-
-        val caseClasses = hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
-          import collection.JavaConverters._
-          Files.readLines(f, Charset.defaultCharset()).asScala.filter(_.contains("case class"))
-        }).getOrElse(Seq.empty)
-
-        val extraCompanionMethod = annotation match {
-          case a if a.contains(fromQuery) => "def query: _root_.java.lang.String = ???"
-          case a if a.contains(fromTable) => "def table: _root_.java.lang.String = ???"
-          case _ => ""
-        }
-
+        val caseClasses = fetchGeneratedCaseClasses(source, c)
+        val extraCompanionMethod = fetchExtraBQTypeCompanionMethods(source, c)
         val tupledMethod = getTupledMethod(c, caseClasses)
 
-        val applyPropsSignature = getConstructorProps(caseClasses)
-          .getOrElse(Seq.empty)
-          .mkString(" , ")
+        val applyPropsSignature = getApplyPropsSignature(caseClasses)
 
         // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
@@ -145,14 +129,65 @@ class ScioInjector extends SyntheticMembersInjector {
           caseClasses ++ Seq(companion)
         }
 
+      case c: ScClass if c.annotations.map(_.getText).exists(t => avroAnnotations.exists(t.contains)) =>
+        val caseClasses = fetchGeneratedCaseClasses(source, c)
+        val tupledMethod = getTupledMethod(c, caseClasses)
+        val applyPropsSignature = getApplyPropsSignature(caseClasses)
+
+        val companion = s"""|object ${c.getName} {
+                            |  def apply( $applyPropsSignature ) : ${c.getName} = ???
+                            |  def fromGenericRecord: _root_.scala.Function1[_root_.org.apache.avro.generic.GenericRecord, ${c.getName} ] = ???
+                            |  def toGenericRecord: _root_.scala.Function1[ ${c.getName}, _root_.org.apache.avro.generic.GenericRecord] = ???
+                            |  def schema: _root_.org.apache.avro.Schema = ???
+                            |  def toPrettyString(indent: Int = 0): String = ???
+                            |  $tupledMethod
+                            |}""".stripMargin
+
+        if (caseClasses.isEmpty) {
+          Seq.empty
+        } else {
+          caseClasses ++ Seq(companion)
+        }
       case _ => Seq.empty
     }
+  }
+
+  private def getApplyPropsSignature(caseClasses: Seq[String]) = {
+    getConstructorProps(caseClasses)
+      .getOrElse(Seq.empty)
+      .mkString(" , ")
+  }
+
+  private def fetchExtraBQTypeCompanionMethods(source: ScTypeDefinition, c: ScClass) = {
+    val annotation = c.annotations.map(_.getText).find(t => annotations.exists(t.contains)).get
+    logger.debug(s"Found $annotation in ${source.getTruncedQualifiedName}")
+
+    val extraCompanionMethod = annotation match {
+      case a if a.contains(fromQuery) => "def query: _root_.java.lang.String = ???"
+      case a if a.contains(fromTable) => "def table: _root_.java.lang.String = ???"
+      case _ => ""
+    }
+    extraCompanionMethod
+  }
+
+  private def fetchGeneratedCaseClasses(source: ScTypeDefinition, c: ScClass) = {
+    // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
+    val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
+      .map(_.getCanonicalPath)
+    val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
+
+    hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
+      import collection.JavaConverters._
+      Files.readLines(f, Charset.defaultCharset()).asScala.filter(_.contains("case class"))
+    }).getOrElse(Seq.empty)
   }
 
   private def getConstructorProps(caseClasses: Seq[String]): Option[Seq[String]] = {
     // TODO: duh. who needs regex ... but seriously tho, should this be regex?
     caseClasses
-      .find(_.contains("extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation"))
+      .find(c =>
+        c.contains("extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation") ||
+        c.contains("extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
       .map(_.split("[()]"))
       .map(_.filter(_.contains(" : "))) // get only parameter part
       .map(_.flatMap(_.split(","))) // get individual parameter
