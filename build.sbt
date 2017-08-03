@@ -13,7 +13,10 @@ lazy val scioIdeaPlugin: Project =
       aggregate in updateIdea := false,
       assemblyExcludedJars in assembly <<= ideaFullJars,
       ideaBuild := "163.7743.44",
-      libraryDependencies += "com.google.guava" % "guava" % "19.0"
+      libraryDependencies ++= Seq(
+        "com.google.guava" % "guava" % "19.0",
+        "org.scalatest" %% "scalatest" % "3.0.3" % "test"
+      )
     )
 
 lazy val ideaRunner: Project = project.in(file("ideaRunner"))
