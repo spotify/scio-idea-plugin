@@ -107,7 +107,7 @@ class ScioInjector extends SyntheticMembersInjector {
       case c: ScClass if c.annotations.map(_.getText).exists(t => annotations.exists(t.contains)) =>
         val caseClasses = fetchGeneratedCaseClasses(source, c)
         val extraCompanionMethod = fetchExtraBQTypeCompanionMethods(source, c)
-        val tupledMethod = getTupledMethod(c, caseClasses)
+        val tupledMethod = getTupledMethod(c.getName, caseClasses)
 
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
 
@@ -131,7 +131,7 @@ class ScioInjector extends SyntheticMembersInjector {
 
       case c: ScClass if c.annotations.map(_.getText).exists(t => avroAnnotations.exists(t.contains)) =>
         val caseClasses = fetchGeneratedCaseClasses(source, c)
-        val tupledMethod = getTupledMethod(c, caseClasses)
+        val tupledMethod = getTupledMethod(c.getName, caseClasses)
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
 
         val companion = s"""|object ${c.getName} {
@@ -187,32 +187,31 @@ class ScioInjector extends SyntheticMembersInjector {
     caseClasses
       .find(c =>
         c.contains("extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation") ||
-        c.contains("extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
-      .map(_.split("[()]"))
-      .map(_.filter(_.contains(" : "))) // get only parameter part
-      .map(_.flatMap(propsStr => {
-        val propsSplit = propsStr.split(",")
-        // We need to fix the split since Map types contain ',' as a part of their type declaration
-        val props = mutable.ArrayStack[String]()
-        for (prop <- propsSplit) {
-          if (prop.contains(" : ")) {
-            props += prop
-          } else {
-            assume(props.nonEmpty)
-            props += props.pop() + "," + prop
-          }
-        }
-        props.toList
-      })) // get individual parameter
+          c.contains("extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
+      .map(
+        _.split("[()]").filter(_.contains(" : "))  // get only parameter part
+          .flatMap(propsStr => {
+            val propsSplit = propsStr.split(",")
+            // We need to fix the split since Map types contain ',' as a part of their type declaration
+            val props = mutable.ArrayStack[String]()
+            for (prop <- propsSplit) {
+              if (prop.contains(" : ")) {
+                props += prop
+              } else {
+                assume(props.nonEmpty)
+                props += props.pop() + "," + prop
+              }
+            }
+            props.toList
+        })) // get individual parameter
   }
 
-  private def getTupledMethod(c: ScClass, caseClasses: Seq[String]): String = {
+  private[scio] def getTupledMethod(returnClassName: String, caseClasses: Seq[String]): String = {
     val props = getConstructorProps(caseClasses).getOrElse(Seq.empty)
 
     val types = props.map(_.split(" : ")(1).trim) // get parameter types
-
     props.size match {
-      case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( ${types.mkString(" , ")} ), ${c.getName} ] = ???"
+      case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( ${types.mkString(" , ")} ), $returnClassName ] = ???"
       case _ => ""
     }
   }
