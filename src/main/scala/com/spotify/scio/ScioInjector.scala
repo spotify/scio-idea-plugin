@@ -190,7 +190,20 @@ class ScioInjector extends SyntheticMembersInjector {
         c.contains("extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
       .map(_.split("[()]"))
       .map(_.filter(_.contains(" : "))) // get only parameter part
-      .map(_.flatMap(_.split(","))) // get individual parameter
+      .map(_.flatMap(propsStr => {
+        val propsSplit = propsStr.split(",")
+        // We need to fix the split since Map types contain ',' as a part of their type declaration
+        val props = mutable.ArrayStack[String]()
+        for (prop <- propsSplit) {
+          if (prop.contains(" : ")) {
+            props += prop
+          } else {
+            assume(props.nonEmpty)
+            props += props.pop() + "," + prop
+          }
+        }
+        props.toList
+      })) // get individual parameter
   }
 
   private def getTupledMethod(c: ScClass, caseClasses: Seq[String]): String = {
