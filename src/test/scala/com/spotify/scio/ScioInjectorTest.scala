@@ -36,7 +36,7 @@ class ScioInjectorTest extends FlatSpec with Matchers {
                         |f2 : _root_.scala.Option[_root_.java.lang.Long])
                          |extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation
                         |""".stripMargin.replace("\n"," "))
-    val expected = s"def tupled: _root_.scala.Function1[( _root_.scala.Option[_root_.java.lang.Long] , _root_.scala.Option[_root_.java.lang.String] ), $className ] = ???"
+    val expected = s"def tupled: _root_.scala.Function1[( _root_.scala.Option[_root_.java.lang.String] , _root_.scala.Option[_root_.java.lang.Long] ), $className ] = ???"
     si.getTupledMethod(className, input) shouldBe expected
   }
 
@@ -74,7 +74,7 @@ class ScioInjectorTest extends FlatSpec with Matchers {
                         |f2 : _root_.scala.Option[_root_.scala.collection.Map[_root_.java.lang.String, _root_.java.lang.String]])
                         |extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation
                         |""".stripMargin.replace("\n"," "))
-    val expected = s"def tupled: _root_.scala.Function1[( _root_.scala.Option[_root_.scala.collection.Map[_root_.java.lang.String, _root_.java.lang.String]] , _root_.scala.Option[_root_.java.lang.String] ), $className ] = ???"
+    val expected = s"def tupled: _root_.scala.Function1[( _root_.scala.Option[_root_.java.lang.String] , _root_.scala.Option[_root_.scala.collection.Map[_root_.java.lang.String, _root_.java.lang.String]] ), $className ] = ???"
     si.getTupledMethod(className, input) shouldBe expected
   }
 

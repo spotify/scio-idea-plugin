@@ -202,7 +202,7 @@ class ScioInjector extends SyntheticMembersInjector {
                 props += props.pop() + "," + prop
               }
             }
-            props.toList
+            props.result.toList
         })) // get individual parameter
   }
 
