@@ -47,10 +47,10 @@ which sporadicly take a while to propegate.
 
 # Logging
 
-This pluging is using IDEA diagnostic logger, you can find the log file
-under standard IntelliJ directory ([doc](https://intellij-support.jetbrains.com/hc/en-us/articles/206544519-Directories-used-by-the-IDE-to-store-settings-caches-plugins-and-logs)). For example of Mac: `~/Library/Logs/<PRODUCT><VERSION>/idea.log`.
+This pluging uses IDEA diagnostic logger, you can find log files
+under standard IntelliJ directory ([doc](https://intellij-support.jetbrains.com/hc/en-us/articles/206544519-Directories-used-by-the-IDE-to-store-settings-caches-plugins-and-logs)). For example for macOS: `~/Library/Logs/<PRODUCT><VERSION>/idea.log`.
 
-If there is error level messaged logged, it will show up in IntelliJ Event Log, visible to the user.
+If there is error level message logged, it will show up in IntelliJ Event Log.
 
 # License
 
