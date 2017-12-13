@@ -1,6 +1,6 @@
 language: scala
 scala:
-  - 2.11.8
+  - 2.12.3
 jdk: oraclejdk7
 
 cache:
@@ -22,5 +22,5 @@ deploy:
   file: "target/scio-idea-plugin.zip"
   skip_cleanup: true
   on:
-    scala: 2.11.8
+    scala: 2.12.3
     tags: true
