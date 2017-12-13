@@ -5,7 +5,7 @@ lazy val scioIdeaPlugin: Project =
     .enablePlugins(SbtIdeaPlugin)
     .settings(
       name := "scio-idea",
-      version := "0.1.9",
+      version := "0.1.10",
       scalaVersion := "2.12.3", // aligned with IntelliJ's scala plugin
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
       ideaInternalPlugins := Seq(),
