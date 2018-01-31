@@ -110,11 +110,13 @@ class ScioInjector extends SyntheticMembersInjector {
         val tupledMethod = getTupledMethod(c.getName, caseClasses)
 
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
+        val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
         val companion = s"""|object ${c.getName} {
                             |  def apply( $applyPropsSignature ) : ${c.getName} = ???
+                            |  def unapply(x$$0: ${c.getName}) : Option[($unapplyReturnTypes)] = ???
                             |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
                             |  def toTableRow: _root_.scala.Function1[ ${c.getName}, _root_.com.google.api.services.bigquery.model.TableRow] = ???
                             |  def schema: _root_.com.google.api.services.bigquery.model.TableSchema = ???
@@ -133,9 +135,11 @@ class ScioInjector extends SyntheticMembersInjector {
         val caseClasses = fetchGeneratedCaseClasses(source, c)
         val tupledMethod = getTupledMethod(c.getName, caseClasses)
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
+        val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         val companion = s"""|object ${c.getName} {
                             |  def apply( $applyPropsSignature ) : ${c.getName} = ???
+                            |  def unapply(x$$0: ${c.getName}) : Option[($unapplyReturnTypes)] = ???
                             |  def fromGenericRecord: _root_.scala.Function1[_root_.org.apache.avro.generic.GenericRecord, ${c.getName} ] = ???
                             |  def toGenericRecord: _root_.scala.Function1[ ${c.getName}, _root_.org.apache.avro.generic.GenericRecord] = ???
                             |  def schema: _root_.org.apache.avro.Schema = ???
@@ -204,6 +208,12 @@ class ScioInjector extends SyntheticMembersInjector {
             }
             props.result.toList
         })) // get individual parameter
+  }
+
+  private[scio] def getUnapplyReturnTypes(caseClasses: Seq[String]): Seq[String] = {
+    getConstructorProps(caseClasses)
+      .getOrElse(Seq.empty)
+      .map(_.split(" : ")(1).trim)
   }
 
   private[scio] def getTupledMethod(returnClassName: String, caseClasses: Seq[String]): String = {
