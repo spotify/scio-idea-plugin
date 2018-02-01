@@ -157,7 +157,7 @@ class ScioInjector extends SyntheticMembersInjector {
   }
 
   private def getApplyPropsSignature(caseClasses: Seq[String]) = {
-    getConstructorProps(caseClasses)
+    getConstructorProps(caseClasses).map(_.props)
       .getOrElse(Seq.empty)
       .mkString(" , ")
   }
@@ -186,7 +186,7 @@ class ScioInjector extends SyntheticMembersInjector {
     }).getOrElse(Seq.empty)
   }
 
-  private def getConstructorProps(caseClasses: Seq[String]): Option[Seq[String]] = {
+  private def getConstructorProps(caseClasses: Seq[String]): Option[ConstructorProps] = {
     // TODO: duh. who needs regex ... but seriously tho, should this be regex?
     caseClasses
       .find(c =>
@@ -207,22 +207,24 @@ class ScioInjector extends SyntheticMembersInjector {
               }
             }
             props.result.toList
-        })) // get individual parameter
+        })).map(ConstructorProps(_)) // get individual parameter
   }
 
   private[scio] def getUnapplyReturnTypes(caseClasses: Seq[String]): Seq[String] = {
-    getConstructorProps(caseClasses)
-      .getOrElse(Seq.empty)
-      .map(_.split(" : ")(1).trim)
+    getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
   }
 
   private[scio] def getTupledMethod(returnClassName: String, caseClasses: Seq[String]): String = {
-    val props = getConstructorProps(caseClasses).getOrElse(Seq.empty)
-
-    val types = props.map(_.split(" : ")(1).trim) // get parameter types
-    props.size match {
-      case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( ${types.mkString(" , ")} ), $returnClassName ] = ???"
-      case _ => ""
+    val maybeTupledMethod = getConstructorProps(caseClasses).map {
+      case cp: ConstructorProps if (2 to 22).contains(cp.types.size) =>
+        s"def tupled: _root_.scala.Function1[( ${cp.types.mkString(" , ")} ), $returnClassName ] = ???"
+      case _ =>
+        ""
     }
+    maybeTupledMethod.getOrElse("")
+  }
+
+  case class ConstructorProps(props: Seq[String]) {
+    val types: Seq[String] = props.map(_.split(" : ")(1).trim)
   }
 }
