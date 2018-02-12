@@ -78,4 +78,18 @@ class ScioInjectorTest extends FlatSpec with Matchers {
     si.getTupledMethod(className, input) shouldBe expected
   }
 
+
+  it should "return the unapply return types on case class with 3 parameters" in {
+    val input = Seq(s"""|case class $className(
+                        |f1 : _root_.scala.Option[_root_.java.lang.String],
+                        |f2 : _root_.scala.Option[_root_.java.lang.Long],
+                        |f2 : _root_.scala.Option[_root_.java.lang.Int])
+                        |extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation
+                        |""".stripMargin.replace("\n"," "))
+    val expected = Seq(
+      "_root_.scala.Option[_root_.java.lang.String]",
+      "_root_.scala.Option[_root_.java.lang.Long]",
+      "_root_.scala.Option[_root_.java.lang.Int]")
+    si.getUnapplyReturnTypes(input) shouldBe expected
+  }
 }

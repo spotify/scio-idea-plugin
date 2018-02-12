@@ -110,11 +110,13 @@ class ScioInjector extends SyntheticMembersInjector {
         val tupledMethod = getTupledMethod(c.getName, caseClasses)
 
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
+        val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
         val companion = s"""|object ${c.getName} {
-                            |  def apply( $applyPropsSignature ) : ${c.getName} = ???
+                            |  def apply( $applyPropsSignature ): ${c.getName} = ???
+                            |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
                             |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
                             |  def toTableRow: _root_.scala.Function1[ ${c.getName}, _root_.com.google.api.services.bigquery.model.TableRow] = ???
                             |  def schema: _root_.com.google.api.services.bigquery.model.TableSchema = ???
@@ -133,9 +135,11 @@ class ScioInjector extends SyntheticMembersInjector {
         val caseClasses = fetchGeneratedCaseClasses(source, c)
         val tupledMethod = getTupledMethod(c.getName, caseClasses)
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
+        val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         val companion = s"""|object ${c.getName} {
-                            |  def apply( $applyPropsSignature ) : ${c.getName} = ???
+                            |  def apply( $applyPropsSignature ): ${c.getName} = ???
+                            |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
                             |  def fromGenericRecord: _root_.scala.Function1[_root_.org.apache.avro.generic.GenericRecord, ${c.getName} ] = ???
                             |  def toGenericRecord: _root_.scala.Function1[ ${c.getName}, _root_.org.apache.avro.generic.GenericRecord] = ???
                             |  def schema: _root_.org.apache.avro.Schema = ???
@@ -153,7 +157,7 @@ class ScioInjector extends SyntheticMembersInjector {
   }
 
   private def getApplyPropsSignature(caseClasses: Seq[String]) = {
-    getConstructorProps(caseClasses)
+    getConstructorProps(caseClasses).map(_.props)
       .getOrElse(Seq.empty)
       .mkString(" , ")
   }
@@ -182,7 +186,7 @@ class ScioInjector extends SyntheticMembersInjector {
     }).getOrElse(Seq.empty)
   }
 
-  private def getConstructorProps(caseClasses: Seq[String]): Option[Seq[String]] = {
+  private def getConstructorProps(caseClasses: Seq[String]): Option[ConstructorProps] = {
     // TODO: duh. who needs regex ... but seriously tho, should this be regex?
     caseClasses
       .find(c =>
@@ -203,16 +207,24 @@ class ScioInjector extends SyntheticMembersInjector {
               }
             }
             props.result.toList
-        })) // get individual parameter
+        })).map(ConstructorProps(_)) // get individual parameter
+  }
+
+  private[scio] def getUnapplyReturnTypes(caseClasses: Seq[String]): Seq[String] = {
+    getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
   }
 
   private[scio] def getTupledMethod(returnClassName: String, caseClasses: Seq[String]): String = {
-    val props = getConstructorProps(caseClasses).getOrElse(Seq.empty)
-
-    val types = props.map(_.split(" : ")(1).trim) // get parameter types
-    props.size match {
-      case i if i > 1 && i <= 22 => s"def tupled: _root_.scala.Function1[( ${types.mkString(" , ")} ), $returnClassName ] = ???"
-      case _ => ""
+    val maybeTupledMethod = getConstructorProps(caseClasses).map {
+      case cp: ConstructorProps if (2 to 22).contains(cp.types.size) =>
+        s"def tupled: _root_.scala.Function1[( ${cp.types.mkString(" , ")} ), $returnClassName ] = ???"
+      case _ =>
+        ""
     }
+    maybeTupledMethod.getOrElse("")
+  }
+
+  case class ConstructorProps(props: Seq[String]) {
+    val types: Seq[String] = props.map(_.split(" : ")(1).trim)
   }
 }
