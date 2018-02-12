@@ -115,8 +115,8 @@ class ScioInjector extends SyntheticMembersInjector {
         // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
         val companion = s"""|object ${c.getName} {
-                            |  def apply( $applyPropsSignature ) : ${c.getName} = ???
-                            |  def unapply(x$$0: ${c.getName}) : Option[($unapplyReturnTypes)] = ???
+                            |  def apply( $applyPropsSignature ): ${c.getName} = ???
+                            |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
                             |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
                             |  def toTableRow: _root_.scala.Function1[ ${c.getName}, _root_.com.google.api.services.bigquery.model.TableRow] = ???
                             |  def schema: _root_.com.google.api.services.bigquery.model.TableSchema = ???
@@ -138,8 +138,8 @@ class ScioInjector extends SyntheticMembersInjector {
         val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         val companion = s"""|object ${c.getName} {
-                            |  def apply( $applyPropsSignature ) : ${c.getName} = ???
-                            |  def unapply(x$$0: ${c.getName}) : Option[($unapplyReturnTypes)] = ???
+                            |  def apply( $applyPropsSignature ): ${c.getName} = ???
+                            |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
                             |  def fromGenericRecord: _root_.scala.Function1[_root_.org.apache.avro.generic.GenericRecord, ${c.getName} ] = ???
                             |  def toGenericRecord: _root_.scala.Function1[ ${c.getName}, _root_.org.apache.avro.generic.GenericRecord] = ???
                             |  def schema: _root_.org.apache.avro.Schema = ???
