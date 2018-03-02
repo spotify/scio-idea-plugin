@@ -18,6 +18,7 @@
 package com.spotify.scio
 
 import java.nio.charset.Charset
+import java.nio.file.{Path, Paths}
 
 import com.google.common.base.Charsets
 import com.google.common.hash.Hashing
@@ -55,20 +56,18 @@ class ScioInjector extends SyntheticMembersInjector {
    * Finds BigQuery cache directory, must be in sync with Scio implementation, otherwise plugin will
    * not be able to find scala files.
    */
-  private def getBQClassCacheDir = {
+  private def getBQClassCacheDir: Path = {
     //TODO: add this as key/value settings with default etc
     if (sys.props("bigquery.class.cache.directory") != null) {
-      sys.props("bigquery.class.cache.directory")
+      Paths.get(sys.props("bigquery.class.cache.directory"))
     } else {
-      // add `/` before bigquery-class - cause on Linux `java.io.tmpdir` comes without trailing `/`
-      // and double `/` is not a problem.
-      sys.props("java.io.tmpdir") + "/bigquery-classes"
+      Paths.get(sys.props("java.io.tmpdir")).resolve("bigquery-classes")
     }
   }
 
   private def findClassFile(fileName: String): Option[java.io.File] = {
-    val classFilePath = getBQClassCacheDir + s"/$fileName"
-    val classFile = new java.io.File(classFilePath)
+    val classFile = getBQClassCacheDir.resolve(s"$fileName").toFile
+    val classFilePath = classFile.getAbsolutePath
     if (classFile.exists()) {
       logger.debug(s"Found $classFilePath")
       classMissed(fileName) = 0
