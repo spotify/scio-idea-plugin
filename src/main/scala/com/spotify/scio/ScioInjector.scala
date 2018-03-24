@@ -93,7 +93,7 @@ class ScioInjector extends SyntheticMembersInjector {
   private def genHashForMacro(owner: String, srcFile: String): String = {
     Hashing.murmur3_32().newHasher()
       .putString(owner, Charsets.UTF_8)
-      .putString(new File(srcFile).getCanonicalPath, Charsets.UTF_8)
+      .putString(srcFile, Charsets.UTF_8)
       .hash().toString
   }
 
@@ -177,7 +177,9 @@ class ScioInjector extends SyntheticMembersInjector {
   private def fetchGeneratedCaseClasses(source: ScTypeDefinition, c: ScClass) = {
     // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
     val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
-      .map(_.getCanonicalPath)
+      // wrap VirtualFile to java.io.File to use OS file separator
+      .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
+
     val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
 
     hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
