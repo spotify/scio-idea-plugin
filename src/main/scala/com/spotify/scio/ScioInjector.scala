@@ -17,6 +17,7 @@
 
 package com.spotify.scio
 
+import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.{Path, Paths}
 
@@ -92,7 +93,7 @@ class ScioInjector extends SyntheticMembersInjector {
   private def genHashForMacro(owner: String, srcFile: String): String = {
     Hashing.murmur3_32().newHasher()
       .putString(owner, Charsets.UTF_8)
-      .putString(srcFile, Charsets.UTF_8)
+      .putString(new File(srcFile).getCanonicalPath, Charsets.UTF_8)
       .hash().toString
   }
 
