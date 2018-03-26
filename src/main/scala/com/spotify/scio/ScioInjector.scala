@@ -17,6 +17,7 @@
 
 package com.spotify.scio
 
+import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.{Path, Paths}
 
@@ -176,7 +177,9 @@ class ScioInjector extends SyntheticMembersInjector {
   private def fetchGeneratedCaseClasses(source: ScTypeDefinition, c: ScClass) = {
     // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
     val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
-      .map(_.getCanonicalPath)
+      // wrap VirtualFile to java.io.File to use OS file separator
+      .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
+
     val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
 
     hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
