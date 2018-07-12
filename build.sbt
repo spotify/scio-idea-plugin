@@ -1,7 +1,6 @@
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
-lazy val scioIdeaPlugin: Project =
-  Project("scio-idea", file("."))
+lazy val scioIdeaPlugin: Project = project.in(file("."))
     .enablePlugins(SbtIdeaPlugin)
     .settings(
       name := "scio-idea",
