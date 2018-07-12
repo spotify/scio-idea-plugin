@@ -19,7 +19,7 @@ package com.spotify.scio
 
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Path, Paths, Files => JFiles}
 
 import com.google.common.base.Charsets
 import com.google.common.hash.Hashing
@@ -54,20 +54,30 @@ class ScioInjector extends SyntheticMembersInjector {
   private val classMissed = mutable.HashMap.empty[String, Int].withDefaultValue(0)
 
   /**
-   * Finds BigQuery cache directory, must be in sync with Scio implementation, otherwise plugin will
+   * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will
    * not be able to find scala files.
    */
-  private def getBQClassCacheDir: Path = {
+
+  private def getBQClassCacheFile(filename: String): Path = {
     //TODO: add this as key/value settings with default etc
     if (sys.props("bigquery.class.cache.directory") != null) {
       Paths.get(sys.props("bigquery.class.cache.directory"))
+        .resolve(filename)
     } else {
-      Paths.get(sys.props("java.io.tmpdir")).resolve("bigquery-classes")
+      val oldPath = Paths.get(sys.props("java.io.tmpdir"))
+        .resolve("bigquery-classes")
+        .resolve(filename)
+      val newPath = Paths.get(sys.props("java.io.tmpdir"))
+        .resolve(sys.props("user.name"))
+        .resolve("bigquery-classes")
+        .resolve(filename)
+      // use old path only if it's the only one available
+      if (JFiles.exists(oldPath) && !JFiles.exists(newPath)) oldPath else newPath
     }
   }
 
   private def findClassFile(fileName: String): Option[java.io.File] = {
-    val classFile = getBQClassCacheDir.resolve(s"$fileName").toFile
+    val classFile = getBQClassCacheFile(fileName).resolve(s"$fileName").toFile
     val classFilePath = classFile.getAbsolutePath
     if (classFile.exists()) {
       logger.debug(s"Found $classFilePath")
