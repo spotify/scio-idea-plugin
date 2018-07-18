@@ -77,7 +77,7 @@ class ScioInjector extends SyntheticMembersInjector {
   }
 
   private def findClassFile(fileName: String): Option[java.io.File] = {
-    val classFile = getBQClassCacheFile(fileName).resolve(s"$fileName").toFile
+    val classFile = getBQClassCacheFile(fileName).toFile
     val classFilePath = classFile.getAbsolutePath
     if (classFile.exists()) {
       logger.debug(s"Found $classFilePath")
