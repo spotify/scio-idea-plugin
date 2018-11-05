@@ -13,7 +13,7 @@ lazy val scioIdeaPlugin: Project = project.in(file("."))
       assemblyExcludedJars in assembly := ideaFullJars.value,
       ideaBuild := "181.5540.7",
       libraryDependencies ++= Seq(
-        "com.google.guava" % "guava" % "19.0",
+        "com.google.guava" % "guava" % "23.0",
         "org.scalatest" %% "scalatest" % "3.0.5" % "test"
       )
     )
