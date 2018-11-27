@@ -174,7 +174,7 @@ class ScioInjector extends SyntheticMembersInjector {
 
   private def fetchExtraBQTypeCompanionMethods(source: ScTypeDefinition, c: ScClass) = {
     val annotation = c.annotations.map(_.getText).find(t => annotations.exists(t.contains)).get
-    logger.debug(s"Found $annotation in ${source.getTruncedQualifiedName}")
+    logger.debug(s"Found $annotation in ${source.getQualifiedNameForDebugger}")
 
     val extraCompanionMethod = annotation match {
       case a if a.contains(fromQuery) => "def query: _root_.java.lang.String = ???"
@@ -190,7 +190,7 @@ class ScioInjector extends SyntheticMembersInjector {
       // wrap VirtualFile to java.io.File to use OS file separator
       .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
 
-    val hash = fileName.map(genHashForMacro(source.getTruncedQualifiedName, _))
+    val hash = fileName.map(genHashForMacro(source.getQualifiedName, _))
 
     hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
       import collection.JavaConverters._
