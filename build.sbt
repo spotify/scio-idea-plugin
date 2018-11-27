@@ -23,6 +23,8 @@ lazy val commonSettings = Def.settings(
 )
 
 lazy val ideaSettings = Def.settings(
+  ThisBuild / ideaPluginName := "scio-idea",
+  ThisBuild / ideaEdition := IdeaEdition.Community,
   ThisBuild / ideaBuild := "183.4588.3",
   ideaInternalPlugins := Seq(),
   ideaExternalPlugins += IdeaPlugin.Id("Scala",
@@ -31,9 +33,7 @@ lazy val ideaSettings = Def.settings(
 )
 
 lazy val packagingSettings = Def.settings(
-  assembly / assemblyOption :=
-    (assembly / assemblyOption).value.copy(includeScala = false),
-  assembly / assemblyExcludedJars := ideaFullJars.value
+  packageMethod := PackagingMethod.Standalone()
 )
 
 lazy val scioIdeaPlugin: Project = project
@@ -48,7 +48,6 @@ lazy val scioIdeaPlugin: Project = project
       Scalatest % Test
     )
   )
-  .enablePlugins(SbtIdeaPlugin)
 
 lazy val ideaRunner: Project =
   createRunnerProject(scioIdeaPlugin, "idea-runner")
