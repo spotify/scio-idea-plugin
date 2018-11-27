@@ -1,8 +1,29 @@
-onLoad in Global := ((s: State) => { "updateIdea" :: s }) compose (onLoad in Global).value
+/*
+ * Copyright 2017 Spotify AB.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+lazy val Guava = "com.google.guava" % "guava" % "23.0"
+lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
+
+lazy val commonSettings = Def.settings(
+  scalaVersion := "2.12.7"
+)
 
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
-  .enablePlugins(SbtIdeaPlugin)
   .settings(commonSettings)
   .settings(
     name := "scio-idea",
@@ -18,39 +39,11 @@ lazy val scioIdeaPlugin: Project = project
     assemblyExcludedJars in assembly := ideaFullJars.value,
     ideaBuild := "181.5540.7",
     libraryDependencies ++= Seq(
-      "com.google.guava" % "guava" % "23.0",
-      "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+      Guava,
+      Scalatest % Test
     )
   )
+  .enablePlugins(SbtIdeaPlugin)
 
-lazy val ideaRunner: Project = project
-  .in(file("ideaRunner"))
-  .settings(commonSettings)
-  .settings(
-    name := "ideaRunner",
-    version := "1.0",
-    autoScalaLibrary := false,
-    unmanagedJars in Compile := (ideaMainJars in scioIdeaPlugin).value,
-    unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
-  )
-  .dependsOn(scioIdeaPlugin % Provided)
-
-lazy val packagePlugin = TaskKey[File](
-  "package-plugin",
-  "Create plugin's zip file ready to load into IDEA")
-
-packagePlugin in scioIdeaPlugin := {
-  val ideaJar = (assembly in scioIdeaPlugin).value
-  val paths = ivyPaths.value
-  val pluginName = "scio-idea"
-  val ivyLocal = paths.ivyHome.getOrElse(
-    file(System.getProperty("user.home")) / ".ivy2") / "local"
-  val sources = Seq(ideaJar -> s"$pluginName/lib/${ideaJar.getName}")
-  val out = (target in scioIdeaPlugin).value / s"$pluginName-plugin.zip"
-  IO.zip(sources, out)
-  out
-}
-
-lazy val commonSettings = Def.settings(
-  scalaVersion := "2.12.7"
-)
+lazy val ideaRunner: Project =
+  createRunnerProject(scioIdeaPlugin, "idea-runner")
