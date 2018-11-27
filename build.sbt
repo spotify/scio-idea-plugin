@@ -28,15 +28,11 @@ lazy val scioIdeaPlugin: Project = project
   .settings(
     name := "scio-idea",
     version := "0.1.12",
-    assemblyOption in assembly := (assemblyOption in assembly).value
-      .copy(includeScala = false),
     ideaInternalPlugins := Seq(),
     ideaExternalPlugins := Seq(
       IdeaPlugin.Zip(
         "scala-plugin",
         url("https://plugins.jetbrains.com/plugin/download?updateId=41257"))),
-    aggregate in updateIdea := false,
-    assemblyExcludedJars in assembly := ideaFullJars.value,
     ideaBuild := "181.5540.7",
     libraryDependencies ++= Seq(
       Guava,
