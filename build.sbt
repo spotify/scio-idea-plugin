@@ -22,23 +22,32 @@ lazy val commonSettings = Def.settings(
   scalaVersion := "2.12.7"
 )
 
+lazy val ideaSettings = Def.settings(
+  ThisBuild / ideaPluginName := "scio-idea",
+  ThisBuild / ideaEdition := IdeaEdition.Community,
+  ThisBuild / ideaBuild := "183.4588.3",
+  ideaInternalPlugins := Seq(),
+  ideaExternalPlugins += IdeaPlugin.Id("Scala",
+                                       "org.intellij.scala",
+                                       Some("eap"))
+)
+
+lazy val packagingSettings = Def.settings(
+  packageMethod := PackagingMethod.Standalone()
+)
+
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
   .settings(commonSettings)
+  .settings(ideaSettings)
+  .settings(packagingSettings)
   .settings(
     name := "scio-idea",
-    ideaInternalPlugins := Seq(),
-    ideaExternalPlugins := Seq(
-      IdeaPlugin.Zip(
-        "scala-plugin",
-        url("https://plugins.jetbrains.com/plugin/download?updateId=41257"))),
-    ideaBuild := "181.5540.7",
     libraryDependencies ++= Seq(
       Guava,
       Scalatest % Test
     )
   )
-  .enablePlugins(SbtIdeaPlugin)
 
 lazy val ideaRunner: Project =
   createRunnerProject(scioIdeaPlugin, "idea-runner")
