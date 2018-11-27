@@ -27,7 +27,6 @@ lazy val scioIdeaPlugin: Project = project
   .settings(commonSettings)
   .settings(
     name := "scio-idea",
-    version := "0.1.12",
     ideaInternalPlugins := Seq(),
     ideaExternalPlugins := Seq(
       IdeaPlugin.Zip(
