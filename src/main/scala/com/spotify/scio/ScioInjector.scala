@@ -190,7 +190,7 @@ class ScioInjector extends SyntheticMembersInjector {
       // wrap VirtualFile to java.io.File to use OS file separator
       .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
 
-    val hash = fileName.map(genHashForMacro(source.getQualifiedName, _))
+    val hash = fileName.map(genHashForMacro(source.getQualifiedNameForDebugger, _))
 
     hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
       import collection.JavaConverters._
