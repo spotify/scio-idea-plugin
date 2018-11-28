@@ -58,26 +58,32 @@ class ScioInjector extends SyntheticMembersInjector {
    * not be able to find scala files.
    */
 
-  private def getBQClassCacheFile(filename: String): Path = {
-    //TODO: add this as key/value settings with default etc
-    if (sys.props("bigquery.class.cache.directory") != null) {
-      Paths.get(sys.props("bigquery.class.cache.directory"))
-        .resolve(filename)
-    } else {
-      val oldPath = Paths.get(sys.props("java.io.tmpdir"))
+  private def getClassCacheFile(filename: String): Path = {
+    val sysPropOverride =
+      Seq("generated.class.cache.directory", "bigquery.class.cache.directory")
+        .flatMap(sys.props.get)
+        .headOption
+        .map(Paths.get(_).resolve(filename))
+
+    sysPropOverride.getOrElse {
+      val oldBqPath = Paths.get(sys.props("java.io.tmpdir"))
         .resolve("bigquery-classes")
         .resolve(filename)
-      val newPath = Paths.get(sys.props("java.io.tmpdir"))
+      val newBqPath = Paths.get(sys.props("java.io.tmpdir"))
         .resolve(sys.props("user.name"))
         .resolve("bigquery-classes")
         .resolve(filename)
-      // use old path only if it's the only one available
-      if (JFiles.exists(oldPath) && !JFiles.exists(newPath)) oldPath else newPath
+      val path = Paths.get(sys.props("java.io.tmpdir"))
+        .resolve(sys.props("user.name"))
+        .resolve("generated-classes")
+        .resolve(filename)
+
+      Seq(path, newBqPath, oldBqPath).find(JFiles.exists(_)).getOrElse(path)
     }
   }
 
   private def findClassFile(fileName: String): Option[java.io.File] = {
-    val classFile = getBQClassCacheFile(fileName).toFile
+    val classFile = getClassCacheFile(fileName).toFile
     val classFilePath = classFile.getAbsolutePath
     if (classFile.exists()) {
       logger.debug(s"Found $classFilePath")
