@@ -119,7 +119,7 @@ class ScioInjector extends SyntheticMembersInjector {
    * class/object.
    */
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
-    source.members.flatMap {
+    source.extendsBlock.members.flatMap {
       case c: ScClass if c.annotations.map(_.getText).exists(t => annotations.exists(t.contains)) =>
         val caseClasses = fetchGeneratedCaseClasses(source, c)
         val extraCompanionMethod = fetchExtraBQTypeCompanionMethods(source, c)
