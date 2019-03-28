@@ -1,4 +1,4 @@
-<idea-plugin version="2">
+<idea-plugin>
     <id>com.spotify.scio-idea</id>
     <name>Scio IDEA</name>
     <version>0.1.14</version>

@@ -26,7 +26,10 @@ import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{
+  ScClass,
+  ScTypeDefinition
+}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
 import scala.collection.mutable
@@ -51,13 +54,13 @@ class ScioInjector extends SyntheticMembersInjector {
                                     s"$AvroTNamespace.toSchema")
 
   private val alertEveryMissedXInvocations = 5
-  private val classMissed = mutable.HashMap.empty[String, Int].withDefaultValue(0)
+  private val classMissed =
+    mutable.HashMap.empty[String, Int].withDefaultValue(0)
 
   /**
-   * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will
-   * not be able to find scala files.
-   */
-
+    * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will
+    * not be able to find scala files.
+    */
   private def getClassCacheFile(filename: String): Path = {
     val sysPropOverride =
       Seq("generated.class.cache.directory", "bigquery.class.cache.directory")
@@ -66,14 +69,17 @@ class ScioInjector extends SyntheticMembersInjector {
         .map(Paths.get(_).resolve(filename))
 
     sysPropOverride.getOrElse {
-      val oldBqPath = Paths.get(sys.props("java.io.tmpdir"))
+      val oldBqPath = Paths
+        .get(sys.props("java.io.tmpdir"))
         .resolve("bigquery-classes")
         .resolve(filename)
-      val newBqPath = Paths.get(sys.props("java.io.tmpdir"))
+      val newBqPath = Paths
+        .get(sys.props("java.io.tmpdir"))
         .resolve(sys.props("user.name"))
         .resolve("bigquery-classes")
         .resolve(filename)
-      val path = Paths.get(sys.props("java.io.tmpdir"))
+      val path = Paths
+        .get(sys.props("java.io.tmpdir"))
         .resolve(sys.props("user.name"))
         .resolve("generated-classes")
         .resolve(filename)
@@ -91,9 +97,10 @@ class ScioInjector extends SyntheticMembersInjector {
       Some(classFile)
     } else {
       classMissed(fileName) += 1
-      val errorMessage = s"""|Scio plugin could not find scala files for code completion. Please (re)compile the project.
+      val errorMessage =
+        s"""|Scio plugin could not find scala files for code completion. Please (re)compile the project.
                              |Missing: $classFilePath""".stripMargin
-      if(classMissed(fileName) >= alertEveryMissedXInvocations) {
+      if (classMissed(fileName) >= alertEveryMissedXInvocations) {
         // reset counter
         classMissed(fileName) = 0
         logger.error(errorMessage)
@@ -104,29 +111,36 @@ class ScioInjector extends SyntheticMembersInjector {
   }
 
   /**
-   * Computes hash for macro - the hash must be consistent with hash implementation in Scio.
-   */
+    * Computes hash for macro - the hash must be consistent with hash implementation in Scio.
+    */
   private def genHashForMacro(owner: String, srcFile: String): String = {
-    Hashing.murmur3_32().newHasher()
+    Hashing
+      .murmur3_32()
+      .newHasher()
       .putString(owner, Charsets.UTF_8)
       .putString(srcFile, Charsets.UTF_8)
-      .hash().toString
+      .hash()
+      .toString
   }
 
   /**
-   * Main method of the plugin. Injects syntactic inner members like case classes and companion
-   * objects, makes IntelliJ happy about BigQuery macros. Assumes macro is enclosed within
-   * class/object.
-   */
+    * Main method of the plugin. Injects syntactic inner members like case classes and companion
+    * objects, makes IntelliJ happy about BigQuery macros. Assumes macro is enclosed within
+    * class/object.
+    */
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
     source.extendsBlock.members.flatMap {
-      case c: ScClass if c.annotations.map(_.getText).exists(t => annotations.exists(t.contains)) =>
+      case c: ScClass
+          if c.annotations
+            .map(_.getText)
+            .exists(t => annotations.exists(t.contains)) =>
         val caseClasses = fetchGeneratedCaseClasses(source, c)
         val extraCompanionMethod = fetchExtraBQTypeCompanionMethods(source, c)
         val tupledMethod = getTupledMethod(c.getName, caseClasses)
 
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
-        val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
+        val unapplyReturnTypes =
+          getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         // TODO: missing extends and traits - are they needed?
         // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
@@ -147,11 +161,15 @@ class ScioInjector extends SyntheticMembersInjector {
           caseClasses ++ Seq(companion)
         }
 
-      case c: ScClass if c.annotations.map(_.getText).exists(t => avroAnnotations.exists(t.contains)) =>
+      case c: ScClass
+          if c.annotations
+            .map(_.getText)
+            .exists(t => avroAnnotations.exists(t.contains)) =>
         val caseClasses = fetchGeneratedCaseClasses(source, c)
         val tupledMethod = getTupledMethod(c.getName, caseClasses)
         val applyPropsSignature = getApplyPropsSignature(caseClasses)
-        val unapplyReturnTypes = getUnapplyReturnTypes(caseClasses).mkString(" , ")
+        val unapplyReturnTypes =
+          getUnapplyReturnTypes(caseClasses).mkString(" , ")
 
         val companion = s"""|object ${c.getName} {
                             |  def apply( $applyPropsSignature ): ${c.getName} = ???
@@ -173,45 +191,64 @@ class ScioInjector extends SyntheticMembersInjector {
   }
 
   private def getApplyPropsSignature(caseClasses: Seq[String]) = {
-    getConstructorProps(caseClasses).map(_.props)
+    getConstructorProps(caseClasses)
+      .map(_.props)
       .getOrElse(Seq.empty)
       .mkString(" , ")
   }
 
-  private def fetchExtraBQTypeCompanionMethods(source: ScTypeDefinition, c: ScClass) = {
-    val annotation = c.annotations.map(_.getText).find(t => annotations.exists(t.contains)).get
+  private def fetchExtraBQTypeCompanionMethods(source: ScTypeDefinition,
+                                               c: ScClass) = {
+    val annotation =
+      c.annotations.map(_.getText).find(t => annotations.exists(t.contains)).get
     logger.debug(s"Found $annotation in ${source.getQualifiedNameForDebugger}")
 
     val extraCompanionMethod = annotation match {
-      case a if a.contains(fromQuery) => "def query: _root_.java.lang.String = ???"
-      case a if a.contains(fromTable) => "def table: _root_.java.lang.String = ???"
+      case a if a.contains(fromQuery) =>
+        "def query: _root_.java.lang.String = ???"
+      case a if a.contains(fromTable) =>
+        "def table: _root_.java.lang.String = ???"
       case _ => ""
     }
     extraCompanionMethod
   }
 
-  private def fetchGeneratedCaseClasses(source: ScTypeDefinition, c: ScClass) = {
+  private def fetchGeneratedCaseClasses(source: ScTypeDefinition,
+                                        c: ScClass) = {
     // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
-    val fileName = Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
+    val fileName =
+      Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
       // wrap VirtualFile to java.io.File to use OS file separator
-      .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
+        .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
 
-    val hash = fileName.map(genHashForMacro(source.getQualifiedNameForDebugger, _))
+    val hash =
+      fileName.map(genHashForMacro(source.getQualifiedNameForDebugger, _))
 
-    hash.flatMap(h => findClassFile(s"${c.getName}-$h.scala")).map(f => {
-      import collection.JavaConverters._
-      Files.readLines(f, Charset.defaultCharset()).asScala.filter(_.contains("case class"))
-    }).getOrElse(Seq.empty)
+    hash
+      .flatMap(h => findClassFile(s"${c.getName}-$h.scala"))
+      .map(f => {
+        import collection.JavaConverters._
+        Files
+          .readLines(f, Charset.defaultCharset())
+          .asScala
+          .filter(_.contains("case class"))
+      })
+      .getOrElse(Seq.empty)
   }
 
-  private def getConstructorProps(caseClasses: Seq[String]): Option[ConstructorProps] = {
+  private def getConstructorProps(
+      caseClasses: Seq[String]): Option[ConstructorProps] = {
     // TODO: duh. who needs regex ... but seriously tho, should this be regex?
     caseClasses
-      .find(c =>
-        c.contains("extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation") ||
-          c.contains("extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
+      .find(
+        c =>
+          c.contains(
+            "extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation") ||
+            c.contains(
+              "extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
       .map(
-        _.split("[()]").filter(_.contains(" : "))  // get only parameter part
+        _.split("[()]")
+          .filter(_.contains(" : ")) // get only parameter part
           .flatMap(propsStr => {
             val propsSplit = propsStr.split(",")
             // We need to fix the split since Map types contain ',' as a part of their type declaration
@@ -225,14 +262,17 @@ class ScioInjector extends SyntheticMembersInjector {
               }
             }
             props.result.toList
-        })).map(ConstructorProps(_)) // get individual parameter
+          }))
+      .map(ConstructorProps(_)) // get individual parameter
   }
 
-  private[scio] def getUnapplyReturnTypes(caseClasses: Seq[String]): Seq[String] = {
+  private[scio] def getUnapplyReturnTypes(
+      caseClasses: Seq[String]): Seq[String] = {
     getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
   }
 
-  private[scio] def getTupledMethod(returnClassName: String, caseClasses: Seq[String]): String = {
+  private[scio] def getTupledMethod(returnClassName: String,
+                                    caseClasses: Seq[String]): String = {
     val maybeTupledMethod = getConstructorProps(caseClasses).map {
       case cp: ConstructorProps if (2 to 22).contains(cp.types.size) =>
         s"def tupled: _root_.scala.Function1[( ${cp.types.mkString(" , ")} ), $returnClassName ] = ???"
