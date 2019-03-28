@@ -1,6 +1,6 @@
 language: scala
 scala:
-  - 2.12.6
+  - 2.12.8
 jdk: oraclejdk8
 
 cache:
@@ -13,7 +13,7 @@ script:
 
 notifications:
   email:
-    - rav@spotify.com
+    - flatmap@spotify.com
 
 deploy:
   provider: releases
@@ -22,5 +22,5 @@ deploy:
   file: "target/scio-idea-plugin.zip"
   skip_cleanup: true
   on:
-    scala: 2.12.6
+    scala: 2.12.8
     tags: true
