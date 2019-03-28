@@ -25,7 +25,7 @@ lazy val commonSettings = Def.settings(
 lazy val ideaSettings = Def.settings(
   ThisBuild / ideaPluginName := "scio-idea",
   ThisBuild / ideaEdition := IdeaEdition.Community,
-  ThisBuild / ideaBuild := "183.4588.3",
+  ThisBuild / ideaBuild := "191.6183.87",
   ideaInternalPlugins := Seq(),
   ideaExternalPlugins += IdeaPlugin.Id("Scala",
                                        "org.intellij.scala",
@@ -48,6 +48,7 @@ lazy val scioIdeaPlugin: Project = project
       Scalatest % Test
     )
   )
+  .enablePlugins(SbtIdeaPlugin)
 
 lazy val ideaRunner: Project =
   createRunnerProject(scioIdeaPlugin, "idea-runner")
