@@ -43,8 +43,10 @@ object ScioInjector {
   private val BQTNamespace = "BigQueryType"
   private val FromQuery = s"$BQTNamespace.fromQuery"
   private val FromTable = s"$BQTNamespace.fromTable"
+  private val FromStorage = s"$BQTNamespace.fromStorage"
   private val Annotations = Seq(FromQuery,
                                 FromTable,
+                                FromStorage,
                                 s"$BQTNamespace.fromSchema",
                                 s"$BQTNamespace.toTable")
 
@@ -115,6 +117,12 @@ object ScioInjector {
         "def query: _root_.java.lang.String = ???"
       case a if a.contains(FromTable) =>
         "def table: _root_.java.lang.String = ???"
+      case a if a.contains(FromStorage) =>
+        """
+          |def table: _root_.java.lang.String = ???
+          |def selectedFields: _root_.scala.List[_root_.java.lang.String] = ???
+          |def rowRestriction: _root_.java.lang.String = ???
+        """.stripMargin
       case _ => ""
     }
     extraCompanionMethod
