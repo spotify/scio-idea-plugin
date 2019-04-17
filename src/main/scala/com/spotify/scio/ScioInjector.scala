@@ -44,16 +44,20 @@ object ScioInjector {
   private val FromQuery = s"$BQTNamespace.fromQuery"
   private val FromTable = s"$BQTNamespace.fromTable"
   private val FromStorage = s"$BQTNamespace.fromStorage"
-  private val Annotations = Seq(FromQuery,
-                                FromTable,
-                                FromStorage,
-                                s"$BQTNamespace.fromSchema",
-                                s"$BQTNamespace.toTable")
+  private val Annotations = Seq(
+    FromQuery,
+    FromTable,
+    FromStorage,
+    s"$BQTNamespace.fromSchema",
+    s"$BQTNamespace.toTable"
+  )
 
   private val AvroTNamespace = "AvroType"
-  private val AvroAnnotations = Seq(s"$AvroTNamespace.fromSchema",
-                                    s"$AvroTNamespace.fromPath",
-                                    s"$AvroTNamespace.toSchema")
+  private val AvroAnnotations = Seq(
+    s"$AvroTNamespace.fromSchema",
+    s"$AvroTNamespace.fromPath",
+    s"$AvroTNamespace.toSchema"
+  )
 
   private val AlertEveryMissedXInvocations = 5
 
@@ -106,8 +110,10 @@ object ScioInjector {
       .getOrElse(Seq.empty)
       .mkString(" , ")
 
-  private def fetchExtraBQTypeCompanionMethods(source: ScTypeDefinition,
-                                               c: ScClass) = {
+  private def fetchExtraBQTypeCompanionMethods(
+      source: ScTypeDefinition,
+      c: ScClass
+  ) = {
     val annotation =
       c.annotations.map(_.getText).find(t => Annotations.exists(t.contains)).get
     Log.debug(s"Found $annotation in ${source.getQualifiedNameForDebugger}")
@@ -129,15 +135,19 @@ object ScioInjector {
   }
 
   private def getConstructorProps(
-      caseClasses: Seq[String]): Option[ConstructorProps] = {
+      caseClasses: Seq[String]
+  ): Option[ConstructorProps] = {
     // TODO: duh. who needs regex ... but seriously tho, should this be regex?
     caseClasses
       .find(
         c =>
           c.contains(
-            "extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation") ||
+            "extends _root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation"
+          ) ||
             c.contains(
-              "extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"))
+              "extends _root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"
+            )
+      )
       .map(
         _.split("[()]")
           .filter(_.contains(" : ")) // get only parameter part
@@ -154,17 +164,21 @@ object ScioInjector {
               }
             }
             props.result.toList
-          }))
+          })
+      )
       .map(ConstructorProps(_)) // get individual parameter
   }
 
   private[scio] def getUnapplyReturnTypes(
-      caseClasses: Seq[String]): Seq[String] = {
+      caseClasses: Seq[String]
+  ): Seq[String] = {
     getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
   }
 
-  private[scio] def getTupledMethod(returnClassName: String,
-                                    caseClasses: Seq[String]): String = {
+  private[scio] def getTupledMethod(
+      returnClassName: String,
+      caseClasses: Seq[String]
+  ): String = {
     val maybeTupledMethod = getConstructorProps(caseClasses).map {
       case cp: ConstructorProps if (2 to 22).contains(cp.types.size) =>
         s"def tupled: _root_.scala.Function1[( ${cp.types.mkString(" , ")} ), $returnClassName ] = ???"
@@ -253,8 +267,10 @@ final class ScioInjector extends SyntheticMembersInjector {
     }
   }
 
-  private def fetchGeneratedCaseClasses(source: ScTypeDefinition,
-                                        c: ScClass) = {
+  private def fetchGeneratedCaseClasses(
+      source: ScTypeDefinition,
+      c: ScClass
+  ) = {
     // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
     val fileName =
       Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
