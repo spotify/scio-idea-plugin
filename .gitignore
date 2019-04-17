@@ -12,3 +12,6 @@ target
 /dist
 /out
 /idea
+
+.bloop
+.metals
