@@ -200,6 +200,8 @@ final class ScioInjector extends SyntheticMembersInjector {
   private[this] val classMissed =
     mutable.HashMap.empty[String, Int].withDefaultValue(0)
 
+  override def needsCompanionObject(source: ScTypeDefinition): Boolean = false
+
   /**
     * Main method of the plugin. Injects syntactic inner members like case classes and companion
     * objects, makes IntelliJ happy about BigQuery macros. Assumes macro is enclosed within
@@ -235,7 +237,7 @@ final class ScioInjector extends SyntheticMembersInjector {
         if (caseClasses.isEmpty) {
           Seq.empty
         } else {
-          caseClasses ++ Seq(companion)
+          companion +: caseClasses
         }
 
       case c: ScClass
@@ -261,7 +263,7 @@ final class ScioInjector extends SyntheticMembersInjector {
         if (caseClasses.isEmpty) {
           Seq.empty
         } else {
-          caseClasses ++ Seq(companion)
+          companion +: caseClasses
         }
       case _ => Seq.empty
     }
