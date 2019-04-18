@@ -113,12 +113,12 @@ object ScioInjector {
   private def fetchExtraBQTypeCompanionMethods(
       source: ScTypeDefinition,
       c: ScClass
-  ) = {
+  ): String = {
     val annotation =
       c.annotations.map(_.getText).find(t => Annotations.exists(t.contains)).get
     Log.debug(s"Found $annotation in ${source.getQualifiedNameForDebugger}")
 
-    val extraCompanionMethod = annotation match {
+    annotation match {
       case a if a.contains(FromQuery) =>
         "def query: _root_.java.lang.String = ???"
       case a if a.contains(FromTable) =>
@@ -131,7 +131,6 @@ object ScioInjector {
         """.stripMargin
       case _ => ""
     }
-    extraCompanionMethod
   }
 
   private def getConstructorProps(
@@ -283,14 +282,16 @@ final class ScioInjector extends SyntheticMembersInjector {
       fileName.map(genHashForMacro(source.getQualifiedNameForDebugger, _))
 
     hash
-      .flatMap(h => findClassFile(s"${c.getName}-$h.scala"))
-      .map(f => {
+      .flatMap { h =>
+        findClassFile(s"${c.getName}-$h.scala")
+      }
+      .map { f =>
         import collection.JavaConverters._
         Files
           .readLines(f, Charset.defaultCharset())
           .asScala
           .filter(_.contains("case class"))
-      })
+      }
       .getOrElse(Seq.empty)
   }
 
