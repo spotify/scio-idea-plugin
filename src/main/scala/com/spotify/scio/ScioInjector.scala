@@ -318,7 +318,7 @@ final class ScioInjector extends SyntheticMembersInjector {
           "Scio Plugin",
           errorMessage,
           NotificationType.ERROR
-        );
+        )
         Notifications.Bus.notify(notification)
       }
       Log.warn(errorMessage)
