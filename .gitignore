@@ -13,5 +13,7 @@ target
 /out
 /idea
 
+.java-version
+
 .bloop
 .metals
