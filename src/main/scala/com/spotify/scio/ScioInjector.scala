@@ -33,6 +33,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
 import scala.collection.mutable
+import com.intellij.notification.Notifications
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
 
 object ScioInjector {
   private val Log = Logger.getInstance(classOf[ScioInjector])
@@ -310,7 +313,13 @@ final class ScioInjector extends SyntheticMembersInjector {
       if (classMissed(fileName) >= AlertEveryMissedXInvocations) {
         // reset counter
         classMissed(fileName) = 0
-        Log.error(errorMessage)
+        val notification = new Notification(
+          "ScioIDEA",
+          "Scio Plugin",
+          errorMessage,
+          NotificationType.ERROR
+        );
+        Notifications.Bus.notify(notification)
       }
       Log.warn(errorMessage)
       None
