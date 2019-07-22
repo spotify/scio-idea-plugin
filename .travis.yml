@@ -1,7 +1,9 @@
 language: scala
 scala:
   - 2.12.8
-jdk: openjdk8
+jdk:
+  - openjdk8
+  - openjdk12
 
 cache:
   directories:
