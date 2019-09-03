@@ -19,7 +19,7 @@ lazy val Guava = "com.google.guava" % "guava" % "23.0"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.0.8"
 
 lazy val commonSettings = Def.settings(
-  scalaVersion := "2.12.8",
+  scalaVersion := "2.12.9",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
@@ -53,10 +53,10 @@ lazy val commonSettings = Def.settings(
 lazy val ideaSettings = Def.settings(
   ThisBuild / ideaPluginName := "scio-idea",
   ThisBuild / ideaEdition := IdeaEdition.Community,
-  ThisBuild / ideaBuild := "191.6183.87",
-  ideaInternalPlugins := Seq(),
+  ThisBuild / ideaBuild := "192.6603.8",
+  ideaInternalPlugins := Seq("java"),
   ideaExternalPlugins += IdeaPlugin
-    .Id("Scala", "org.intellij.scala", Some("eap"))
+    .Id("Scala", "org.intellij.scala", Some("Nightly"))
 )
 
 lazy val packagingSettings = Def.settings(
