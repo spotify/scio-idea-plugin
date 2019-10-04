@@ -55,7 +55,7 @@ lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
   ThisBuild / intellijBuild := "192.6603.8",
   intellijInternalPlugins := Seq("java"),
-  intellijExternalPlugins += "org.intellij.scala:Nightly".toPlugin
+  intellijExternalPlugins += "org.intellij.scala".toPlugin
 )
 
 lazy val packagingSettings = Def.settings(
@@ -72,6 +72,12 @@ lazy val scioIdeaPlugin: Project = project
     libraryDependencies ++= Seq(
       Guava,
       Scalatest % Test
+    ),
+    // workaround for scala-library link error
+    // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360005023760-LinkageError-related-to-Scala-collections-after-upgrade-to-2019-2
+    packageLibraryMappings ++= Seq(
+      "org.scala-lang"  % "scala-.*" % ".*"        -> None,
+      "org.scala-lang.modules" % "scala-.*" % ".*" -> None
     )
   )
   .enablePlugins(SbtIdeaPlugin)
