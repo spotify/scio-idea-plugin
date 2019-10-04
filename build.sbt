@@ -51,12 +51,11 @@ lazy val commonSettings = Def.settings(
 )
 
 lazy val ideaSettings = Def.settings(
-  ThisBuild / ideaPluginName := "scio-idea",
-  ThisBuild / ideaEdition := IdeaEdition.Community,
-  ThisBuild / ideaBuild := "192.6603.8",
-  ideaInternalPlugins := Seq("java"),
-  ideaExternalPlugins += IdeaPlugin
-    .Id("Scala", "org.intellij.scala", Some("Nightly"))
+  ThisBuild / intellijPluginName := "scio-idea",
+  ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
+  ThisBuild / intellijBuild := "192.6603.8",
+  intellijInternalPlugins := Seq("java"),
+  intellijExternalPlugins += "org.intellij.scala:Nightly".toPlugin
 )
 
 lazy val packagingSettings = Def.settings(
