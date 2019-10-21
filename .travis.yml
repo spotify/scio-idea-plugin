@@ -1,17 +1,18 @@
 language: scala
-scala:
-  - 2.12.8
-jdk:
-  - openjdk8
-  - openjdk12
+matrix:
+  include:
+    - name: checks
+      scala: 2.12.10
+      jdk: openjdk8
+      script: sbt scalafmtCheckAll scalafmtSbtCheck
 
-cache:
-  directories:
-    - $HOME/.sbt/boot
-    - $HOME/.ivy2/cache
+    - scala: 2.12.10
+      jdk: openjdk8
+      script: sbt test packagePlugin
 
-script:
-  - sbt packagePlugin
+    - scala: 2.12.10
+      jdk: openjdk12
+      script: sbt test packagePlugin
 
 notifications:
   email:
@@ -24,5 +25,11 @@ deploy:
   file: "target/scio-idea-plugin.zip"
   skip_cleanup: true
   on:
-    scala: 2.12.8
+    scala: 2.12.10
     tags: true
+
+cache:
+  directories:
+    - $HOME/.sbt/boot
+    - $HOME/.ivy2/cache
+    - $HOME/.cache
