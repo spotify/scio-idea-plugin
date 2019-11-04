@@ -325,5 +325,4 @@ final class ScioInjector extends SyntheticMembersInjector {
       None
     }
   }
-
 }

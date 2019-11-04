@@ -20,7 +20,6 @@ package com.spotify.scio
 import org.scalatest.{FlatSpec, Matchers}
 
 class ScioInjectorTest extends FlatSpec with Matchers {
-
   private val si = new ScioInjector()
   private val className = "Foobar"
 
