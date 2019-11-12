@@ -43,7 +43,7 @@ in the lower-right corner. The message should inform you that, you need to recom
 
 If you rebuild the project, plugin should react in a matter of seconds - if completion is still not there,
 poke the code around, wait a minute or two. At this point plugin simply reacts to IntelliJ events,
-which sporadicly take a while to propegate.
+which sporadically take a while to propagate.
 
 # Logging
 
