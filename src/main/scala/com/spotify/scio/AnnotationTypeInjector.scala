@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Spotify AB.
+ * Copyright 2019 Spotify AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,7 @@ import com.google.common.io.Files
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{
-  ScClass,
-  ScTypeDefinition
-}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
 import scala.collection.mutable
@@ -45,10 +42,7 @@ object AnnotationTypeInjector {
       .map(_.props)
       .getOrElse(Seq.empty)
 
-  def getConstructorProps(
-      caseClasses: Option[String]
-  ): Option[ConstructorProps] = {
-    // TODO: duh. who needs regex ... but seriously tho, should this be regex?
+  def getConstructorProps(caseClasses: Option[String]): Option[ConstructorProps] = {
     caseClasses
       .map(
         _.split("[()]")
@@ -71,16 +65,10 @@ object AnnotationTypeInjector {
       .map(ConstructorProps(_)) // get individual parameter
   }
 
-  def getUnapplyReturnTypes(
-      caseClasses: Option[String]
-  ): Seq[String] = {
+  def getUnapplyReturnTypes(caseClasses: Option[String]): Seq[String] =
     getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
-  }
 
-  def getTupledMethod(
-      returnClassName: String,
-      caseClasses: Option[String]
-  ): String = {
+  def getTupledMethod(returnClassName: String, caseClasses: Option[String]): String = {
     val maybeTupledMethod = getConstructorProps(caseClasses).map {
       case cp: ConstructorProps if (2 to 22).contains(cp.types.size) =>
         s"def tupled: _root_.scala.Function1[( ${cp.types.mkString(" , ")} ), $returnClassName ] = ???"
@@ -96,10 +84,10 @@ object AnnotationTypeInjector {
   }
 
   /**
-    * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will
-    * not be able to find scala files.
-    */
-  def file(filename: String): Option[File] = {
+   * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will
+   * not be able to find scala files.
+   */
+  private def file(filename: String): Option[File] = {
     val sysPropOverride =
       Seq("generated.class.cache.directory", "bigquery.class.cache.directory")
         .flatMap(sys.props.get)
@@ -136,8 +124,8 @@ object AnnotationTypeInjector {
   }
 
   /**
-    * Computes hash for macro - the hash must be consistent with hash implementation in Scio.
-    */
+   * Computes hash for macro - the hash must be consistent with hash implementation in Scio.
+   */
   def hash(owner: String, srcFile: String): String =
     Hashing
       .murmur3_32()
@@ -176,10 +164,7 @@ trait AnnotationTypeInjector extends SyntheticMembersInjector {
     }
   }
 
-  protected def classFile(
-      klass: ScClass,
-      hash: String
-  ): Option[java.io.File] = {
+  protected def classFile(klass: ScClass, hash: String): Option[java.io.File] = {
     val filename = s"${klass.name}-$hash.scala"
     file(filename) match {
       case f: Some[File] =>

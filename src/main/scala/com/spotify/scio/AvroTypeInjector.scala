@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Spotify AB.
+ * Copyright 2019 Spotify AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,7 @@ import com.google.common.io.Files
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{
-  ScClass,
-  ScTypeDefinition
-}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
 import scala.collection.mutable
@@ -44,6 +41,8 @@ object AvroTypeInjector {
     s"$AvroTNamespace.fromPath",
     s"$AvroTNamespace.toSchema"
   )
+  private val CaseClassSuper =
+    "_root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"
 
   private def avroAnnotation(sc: ScClass): Option[String] =
     sc.annotations
@@ -62,9 +61,7 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
       case c: ScClass if avroAnnotation(c).isDefined =>
         val parent = c.containingClass.getQualifiedName.init
         val caseClasses = generatedCaseClasses(parent, c).find { c =>
-          c.contains(
-            "_root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"
-          )
+          c.contains(CaseClassSuper)
         }
         getApplyPropsSignature(caseClasses).map(v => s"def $v = ???")
       case _ => Seq.empty
@@ -72,27 +69,23 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] =
     source match {
-      case c: ScClass if avroAnnotation(c).isDefined =>
-        Seq("_root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation")
-      case _ => Seq.empty
+      case c: ScClass if avroAnnotation(c).isDefined => Seq(CaseClassSuper)
+      case _                                         => Seq.empty
     }
 
   /**
-    * Main method of the plugin. Injects syntactic inner members like case classes and companion
-    * objects, makes IntelliJ happy about BigQuery macros. Assumes macro is enclosed within
-    * class/object.
-    */
+   * Main method of the plugin. Injects syntactic inner members like case classes and companion
+   * objects, makes IntelliJ happy about BigQuery macros. Assumes macro is enclosed within
+   * class/object.
+   */
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
     source.extendsBlock.members
       .collect {
         case c: ScClass if avroAnnotation(c).isDefined =>
           val caseClasses =
-            generatedCaseClasses(source.getQualifiedName.init, c).find(
-              c =>
-                c.contains(
-                  "_root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"
-                )
-            )
+            generatedCaseClasses(source.getQualifiedName.init, c).find { c =>
+              c.contains(CaseClassSuper)
+            }
           (c, caseClasses)
       }
       .collect {

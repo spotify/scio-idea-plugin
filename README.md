@@ -54,6 +54,6 @@ If there is error level message logged, it will show up in IntelliJ Event Log.
 
 # License
 
-Copyright 2016 Spotify AB.
+Copyright 2019 Spotify AB.
 
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
