@@ -1,17 +1,18 @@
 <idea-plugin>
     <id>com.spotify.scio-idea</id>
     <name>Scio IDEA</name>
-    <version>0.1.18</version>
+    <version>0.1.8</version>
     <vendor url="https://github.com/spotify/scio-idea-plugin">Spotify</vendor>
 
     <description>IntelliJ IDEA plugin for Scio - https://github.com/spotify/scio</description>
 
-    <idea-version since-build="192.0"/>
+    <idea-version since-build="192.0" />
 
     <depends>com.intellij.modules.java</depends>
     <depends>org.intellij.scala</depends>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-        <syntheticMemberInjector implementation="com.spotify.scio.ScioInjector"/>
+        <syntheticMemberInjector implementation="com.spotify.scio.AvroTypeInjector" />
+        <syntheticMemberInjector implementation="com.spotify.scio.BigQueryTypeInjector" />
     </extensions>
 </idea-plugin>
