@@ -34,7 +34,8 @@ import scala.collection.mutable
 
 object AnnotationTypeInjector {
   private val Log = Logger.getInstance(classOf[AnnotationTypeInjector])
-
+  private val CaseClassArgs = """case\s+class\s+[^(]+\((.*)\).*""".r
+  private val TypeArg = """[a-zA-Z0-9]+\s*:\s*[a-zA-Z0-9._]+([\[(](.*?)[)\]]+)?""".r
   private val AlertEveryMissedXInvocations = 5
 
   def getApplyPropsSignature(caseClasses: Option[String]): Seq[String] =
@@ -42,28 +43,10 @@ object AnnotationTypeInjector {
       .map(_.props)
       .getOrElse(Seq.empty)
 
-  def getConstructorProps(caseClasses: Option[String]): Option[ConstructorProps] = {
-    caseClasses
-      .map(
-        _.split("[()]")
-          .filter(_.contains(" : ")) // get only parameter part
-          .flatMap(propsStr => {
-            val propsSplit = propsStr.split(",")
-            // We need to fix the split since Map types contain ',' as a part of their type declaration
-            val props = mutable.ArrayStack[String]()
-            for (prop <- propsSplit) {
-              if (prop.contains(" : ")) {
-                props += prop
-              } else {
-                assume(props.nonEmpty)
-                props += props.pop() + "," + prop
-              }
-            }
-            props.result.toList
-          })
-      )
-      .map(ConstructorProps(_)) // get individual parameter
-  }
+  def getConstructorProps(caseClasses: Option[String]): Option[ConstructorProps] =
+    caseClasses.collect {
+      case CaseClassArgs(params) => ConstructorProps(TypeArg.findAllIn(params).toSeq)
+    }
 
   def getUnapplyReturnTypes(caseClasses: Option[String]): Seq[String] =
     getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
