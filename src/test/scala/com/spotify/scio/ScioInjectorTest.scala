@@ -17,9 +17,10 @@
 
 package com.spotify.scio
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ScioInjectorTest extends FlatSpec with Matchers {
+class ScioInjectorTest extends AnyFlatSpec with Matchers {
   private val className = "Foobar"
 
   "Tupled method" should "be empty on case class with 1 parameter" in {
