@@ -17,20 +17,8 @@
 
 package com.spotify.scio
 
-import java.io.File
-import java.nio.charset.Charset
-import java.nio.file.{Paths, Files => JFiles}
-
-import com.google.common.base.Charsets
-import com.google.common.hash.Hashing
-import com.google.common.io.Files
-import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-
-import scala.collection.mutable
 
 object BigQueryTypeInjector {
   private val Log = Logger.getInstance(classOf[BigQueryTypeInjector])
@@ -79,8 +67,8 @@ object BigQueryTypeInjector {
 }
 
 final class BigQueryTypeInjector extends AnnotationTypeInjector {
-  import BigQueryTypeInjector._
   import AnnotationTypeInjector._
+  import BigQueryTypeInjector._
 
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = false
 
