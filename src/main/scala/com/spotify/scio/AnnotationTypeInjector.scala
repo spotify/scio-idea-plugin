@@ -35,7 +35,7 @@ import scala.collection.mutable
 object AnnotationTypeInjector {
   private val Log = Logger.getInstance(classOf[AnnotationTypeInjector])
   private val CaseClassArgs = """case\s+class\s+[^(]+\((.*)\).*""".r
-  private val TypeArg = """[a-zA-Z0-9]+\s*:\s*[a-zA-Z0-9._]+([\[(](.*?)[)\]]+)?""".r
+  private val TypeArg = """[a-zA-Z0-9_$]+\s*:\s*[a-zA-Z0-9._$]+([\[(](.*?)[)\]]+)?""".r
   private val AlertEveryMissedXInvocations = 5
 
   def getApplyPropsSignature(caseClasses: Option[String]): Seq[String] =
