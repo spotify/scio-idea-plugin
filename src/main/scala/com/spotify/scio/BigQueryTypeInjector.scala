@@ -79,7 +79,11 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
         val caseClasses = generatedCaseClasses(parent, c).find { c =>
           c.contains(CaseClassSuper)
         }
-        getApplyPropsSignature(caseClasses).map(v => s"def $v = ???")
+
+        caseClasses
+          .map(getApplyPropsSignature)
+          .getOrElse(Seq.empty[String])
+          .map(v => s"def $v = ???")
       case _ => Seq.empty
     }
 
@@ -98,35 +102,40 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
     source.extendsBlock.members
       .collect {
         case c: ScClass if bqAnnotation(c).isDefined =>
-          val caseClasses =
-            generatedCaseClasses(source.getQualifiedName.init, c).find { c =>
+          val (annotated, other) =
+            generatedCaseClasses(source.getQualifiedName.init, c).partition { c =>
               c.contains(CaseClassSuper)
             }
-          (c, caseClasses)
+          (c, (annotated.headOption, other))
       }
       .collect {
-        case (c, caseClasses) if caseClasses.nonEmpty =>
-          val tupledMethod = getTupledMethod(c.getName, caseClasses)
+        case (c, (Some(annotated), other)) =>
+          val tupledMethod = getTupledMethod(c.getName, annotated)
           val applyPropsSignature =
-            getApplyPropsSignature(caseClasses).mkString(",")
+            getApplyPropsSignature(annotated).mkString(",")
           val unapplyReturnTypes =
-            getUnapplyReturnTypes(caseClasses).mkString(",")
+            getUnapplyReturnTypes(annotated).mkString(",")
 
           val extraCompanionMethod =
             fetchExtraBQTypeCompanionMethods(source, c)
 
           // TODO: missing extends and traits - are they needed?
           // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
-          s"""|object ${c.getName} {
-              |  def apply( $applyPropsSignature ): ${c.getName} = ???
-              |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
-              |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
-              |  def toTableRow: _root_.scala.Function1[ ${c.getName}, _root_.com.google.api.services.bigquery.model.TableRow] = ???
-              |  def schema: _root_.com.google.api.services.bigquery.model.TableSchema = ???
-              |  def toPrettyString(indent: Int = 0): String = ???
-              |  $extraCompanionMethod
-              |  $tupledMethod
-              |}""".stripMargin
+          val companion =
+            s"""|object ${c.getName} {
+                |  def apply( $applyPropsSignature ): ${c.getName} = ???
+                |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
+                |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
+                |  def toTableRow: _root_.scala.Function1[ ${c.getName}, _root_.com.google.api.services.bigquery.model.TableRow] = ???
+                |  def schema: _root_.com.google.api.services.bigquery.model.TableSchema = ???
+                |  def toPrettyString(indent: Int = 0): String = ???
+                |  $extraCompanionMethod
+                |  $tupledMethod
+                |}""".stripMargin
+
+          // for some reason we need to remove supers if any
+          companion +: other.map(s => s.substring(0, s.lastIndexOf(')') + 1))
       }
+      .flatten
   }
 }

@@ -38,29 +38,24 @@ object AnnotationTypeInjector {
   private val TypeArg = """[a-zA-Z0-9_$]+\s*:\s*[a-zA-Z0-9._$]+([\[(](.*?)[)\]]+)?""".r
   private val AlertEveryMissedXInvocations = 5
 
-  def getApplyPropsSignature(caseClasses: Option[String]): Seq[String] =
-    getConstructorProps(caseClasses)
-      .map(_.props)
-      .getOrElse(Seq.empty)
+  def getApplyPropsSignature(caseClasses: String): Seq[String] =
+    getConstructorProps(caseClasses).props
 
-  def getConstructorProps(caseClasses: Option[String]): Option[ConstructorProps] =
-    caseClasses.collect {
-      case CaseClassArgs(params) => ConstructorProps(TypeArg.findAllIn(params).toSeq)
-    }
+  def getConstructorProps(caseClasses: String): ConstructorProps = {
+    val CaseClassArgs(params) = caseClasses
+    ConstructorProps(TypeArg.findAllIn(params).toSeq)
+  }
 
-  def getUnapplyReturnTypes(caseClasses: Option[String]): Seq[String] =
-    getConstructorProps(caseClasses).map(_.types).getOrElse(Seq.empty)
+  def getUnapplyReturnTypes(caseClasses: String): Seq[String] =
+    getConstructorProps(caseClasses).types
 
-  def getTupledMethod(returnClassName: String, caseClasses: Option[String]): String = {
-    val maybeTupledMethod = getConstructorProps(caseClasses).map {
+  def getTupledMethod(returnClassName: String, caseClasses: String): String =
+    getConstructorProps(caseClasses) match {
       case cp: ConstructorProps if (2 to 22).contains(cp.types.size) =>
         s"def tupled: _root_.scala.Function1[( ${cp.types.mkString(" , ")} ), $returnClassName ] = ???"
       case _ =>
         ""
     }
-
-    maybeTupledMethod.getOrElse("")
-  }
 
   final case class ConstructorProps(props: Seq[String]) {
     val types: Seq[String] = props.map(_.split(" : ")(1).trim)
