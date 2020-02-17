@@ -76,9 +76,7 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
     source match {
       case c: ScClass if bqAnnotation(c).isDefined =>
         val parent = c.containingClass.getQualifiedName.init
-        val caseClasses = generatedCaseClasses(parent, c).find { c =>
-          c.contains(CaseClassSuper)
-        }
+        val caseClasses = generatedCaseClasses(parent, c).find(_.contains(CaseClassSuper))
 
         caseClasses
           .map(getApplyPropsSignature)
@@ -103,9 +101,9 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
       .collect {
         case c: ScClass if bqAnnotation(c).isDefined =>
           val (annotated, other) =
-            generatedCaseClasses(source.getQualifiedName.init, c).partition { c =>
-              c.contains(CaseClassSuper)
-            }
+            generatedCaseClasses(source.getQualifiedName.init, c).partition(
+              _.contains(CaseClassSuper)
+            )
           (c, (annotated.headOption, other))
       }
       .collect {
