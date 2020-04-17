@@ -2,16 +2,16 @@ language: scala
 matrix:
   include:
     - name: checks
-      scala: 2.12.10
+      scala: 2.12.11
       jdk: openjdk8
       script: sbt scalafmtCheckAll scalafmtSbtCheck
 
-    - scala: 2.12.10
+    - scala: 2.12.11
       jdk: openjdk8
       script: sbt test packagePlugin
 
-    - scala: 2.12.10
-      jdk: openjdk12
+    - scala: 2.12.11
+      jdk: openjdk11
       script: sbt test packagePlugin
 
 notifications:
@@ -25,7 +25,7 @@ deploy:
   file: "target/scio-idea-plugin.zip"
   skip_cleanup: true
   on:
-    scala: 2.12.10
+    scala: 2.12.11
     tags: true
 
 cache:
