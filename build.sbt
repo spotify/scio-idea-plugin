@@ -53,9 +53,9 @@ lazy val commonSettings = Def.settings(
 lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPluginName := "scio-idea",
   ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
-  ThisBuild / intellijBuild := "192.6817.14",
-  intellijInternalPlugins := Seq("java"),
-  intellijExternalPlugins += "org.intellij.scala".toPlugin
+  ThisBuild / intellijBuild := "201.6668.121",
+  intellijPlugins += "com.intellij.java".toPlugin,
+  intellijPlugins += "org.intellij.scala".toPlugin
 )
 
 lazy val packagingSettings = Def.settings(
