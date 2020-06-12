@@ -73,6 +73,7 @@ lazy val scioIdeaPlugin: Project = project
       Guava,
       Scalatest % Test
     ),
+    intellijVMOptions := intellijVMOptions.value.copy(gc = "-XX:+UseParallelGC"),
     // workaround for scala-library link error
     // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360005023760-LinkageError-related-to-Scala-collections-after-upgrade-to-2019-2
     packageLibraryMappings ++= Seq(
