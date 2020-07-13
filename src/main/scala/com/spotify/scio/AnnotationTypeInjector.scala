@@ -124,7 +124,7 @@ trait AnnotationTypeInjector extends SyntheticMembersInjector {
     // For some reason sometimes [[getVirtualFile]] returns null, use Option. I don't know why.
     val fileName =
       Option(c.asInstanceOf[PsiElement].getContainingFile.getVirtualFile)
-      // wrap VirtualFile to java.io.File to use OS file separator
+        // wrap VirtualFile to java.io.File to use OS file separator
         .map(vf => new File(vf.getCanonicalPath).getCanonicalPath)
 
     val file = for {
