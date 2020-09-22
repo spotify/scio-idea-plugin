@@ -106,21 +106,20 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
             )
           (c, (annotated.headOption, other))
       }
-      .collect {
-        case (c, (Some(annotated), other)) =>
-          val tupledMethod = getTupledMethod(c.getName, annotated)
-          val applyPropsSignature =
-            getApplyPropsSignature(annotated).mkString(",")
-          val unapplyReturnTypes =
-            getUnapplyReturnTypes(annotated).mkString(",")
+      .collect { case (c, (Some(annotated), other)) =>
+        val tupledMethod = getTupledMethod(c.getName, annotated)
+        val applyPropsSignature =
+          getApplyPropsSignature(annotated).mkString(",")
+        val unapplyReturnTypes =
+          getUnapplyReturnTypes(annotated).mkString(",")
 
-          val extraCompanionMethod =
-            fetchExtraBQTypeCompanionMethods(source, c)
+        val extraCompanionMethod =
+          fetchExtraBQTypeCompanionMethods(source, c)
 
-          // TODO: missing extends and traits - are they needed?
-          // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
-          val companion =
-            s"""|object ${c.getName} {
+        // TODO: missing extends and traits - are they needed?
+        // $tn extends ${p(c, SType)}.HasSchema[$name] with ..$traits
+        val companion =
+          s"""|object ${c.getName} {
                 |  def apply( $applyPropsSignature ): ${c.getName} = ???
                 |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
                 |  def fromTableRow: _root_.scala.Function1[_root_.com.google.api.services.bigquery.model.TableRow, ${c.getName} ] = ???
@@ -131,8 +130,8 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
                 |  $tupledMethod
                 |}""".stripMargin
 
-          // for some reason we need to remove supers if any
-          companion +: other.map(s => s.substring(0, s.lastIndexOf(')') + 1))
+        // for some reason we need to remove supers if any
+        companion +: other.map(s => s.substring(0, s.lastIndexOf(')') + 1))
       }
       .flatten
   }

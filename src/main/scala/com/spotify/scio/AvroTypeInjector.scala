@@ -78,15 +78,14 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
             )
           (c, (annotated.headOption, other))
       }
-      .collect {
-        case (c, (Some(annotated), other)) =>
-          val tupledMethod = getTupledMethod(c.getName, annotated)
-          val applyPropsSignature =
-            getApplyPropsSignature(annotated).mkString(",")
-          val unapplyReturnTypes =
-            getUnapplyReturnTypes(annotated).mkString(",")
+      .collect { case (c, (Some(annotated), other)) =>
+        val tupledMethod = getTupledMethod(c.getName, annotated)
+        val applyPropsSignature =
+          getApplyPropsSignature(annotated).mkString(",")
+        val unapplyReturnTypes =
+          getUnapplyReturnTypes(annotated).mkString(",")
 
-          val companion = s"""|object ${c.getName} {
+        val companion = s"""|object ${c.getName} {
               |  def apply( $applyPropsSignature ): ${c.getName} = ???
               |  def unapply(x$$0: ${c.getName}): _root_.scala.Option[($unapplyReturnTypes)] = ???
               |  def fromGenericRecord: _root_.scala.Function1[_root_.org.apache.avro.generic.GenericRecord, ${c.getName} ] = ???
@@ -95,7 +94,7 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
               |  def toPrettyString(indent: Int = 0): String = ???
               |  $tupledMethod
               |}""".stripMargin
-          companion +: other.map(s => s.substring(0, s.lastIndexOf(')') + 1))
+        companion +: other.map(s => s.substring(0, s.lastIndexOf(')') + 1))
       }
       .flatten
   }
