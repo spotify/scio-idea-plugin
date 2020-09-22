@@ -4,4 +4,4 @@ resolvers += Resolver.url(
 )(Resolver.ivyStylePatterns)
 
 addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.7.5")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
