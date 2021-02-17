@@ -19,7 +19,7 @@ lazy val Guava = "com.google.guava" % "guava" % "30.1-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.3"
 
 lazy val commonSettings = Def.settings(
-  scalaVersion := "2.12.11",
+  scalaVersion := "2.13.4",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
@@ -28,32 +28,27 @@ lazy val commonSettings = Def.settings(
     "-feature",
     "-Xcheckinit",
     "-Xfatal-warnings",
-    "-Xfuture",
     "-Xlint:adapted-args",
-    "-Xlint:by-name-right-associative",
     "-Xlint:constant",
     "-Xlint:delayedinit-select",
     "-Xlint:doc-detached",
     "-Xlint:inaccessible",
     "-Xlint:infer-any",
     "-Xlint:missing-interpolator",
-    "-Xlint:nullary-override",
     "-Xlint:nullary-unit",
     "-Xlint:option-implicit",
     "-Xlint:package-object-classes",
     "-Xlint:poly-implicit-overload",
     "-Xlint:private-shadow",
     "-Xlint:stars-align",
-    "-Xlint:type-parameter-shadow",
-    "-Xlint:unsound-match",
-    "-Yno-adapted-args"
+    "-Xlint:type-parameter-shadow"
   )
 )
 
 lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPluginName := "scio-idea",
   ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
-  ThisBuild / intellijBuild := "201.6668.121",
+  ThisBuild / intellijBuild := "203.7148.57",
   intellijPlugins += "com.intellij.java".toPlugin,
   intellijPlugins += "org.intellij.scala".toPlugin
 )
@@ -76,6 +71,3 @@ lazy val scioIdeaPlugin: Project = project
     intellijVMOptions := intellijVMOptions.value.copy(gc = "-XX:+UseParallelGC")
   )
   .enablePlugins(SbtIdeaPlugin)
-
-lazy val ideaRunner: Project =
-  createRunnerProject(scioIdeaPlugin, "idea-runner")

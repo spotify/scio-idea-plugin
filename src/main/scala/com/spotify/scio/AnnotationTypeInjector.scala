@@ -134,11 +134,12 @@ trait AnnotationTypeInjector extends SyntheticMembersInjector {
     } yield cf
 
     file.fold(Seq.empty[String]) { f =>
-      import collection.JavaConverters._
+      import scala.jdk.CollectionConverters._
       Files
         .readLines(f, Charset.defaultCharset())
         .asScala
         .filter(_.contains("case class"))
+        .toSeq
     }
   }
 
