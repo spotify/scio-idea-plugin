@@ -1,0 +1,27 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache sbt
+        uses: coursier/cache-action@v5
+      - name: Java 11 setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: 11
+      - run: sbt scalafmtCheckAll scalafmtSbtCheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache sbt
+        uses: coursier/cache-action@v5
+      - name: Java 11 setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: 11
+      - run: sbt test packagePlugin

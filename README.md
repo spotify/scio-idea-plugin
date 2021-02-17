@@ -1,6 +1,6 @@
 # Scio IDEA plugin
 
-[![Build Status](https://travis-ci.org/spotify/scio-idea-plugin.svg?branch=master)](https://travis-ci.org/spotify/scio-idea-plugin)
+[![Build Status](https://img.shields.io/github/workflow/status/spotify/scio-idea-plugin/CI)](https://github.com/spotify/scio-idea-plugin/actions?query=workflow%3ACI)
 [![GitHub license](https://img.shields.io/github/license/spotify/scio-idea-plugin.svg)](./LICENSE)
 
 Scio plugin for IDEA, enables BigQuery macro support in IDEA.
