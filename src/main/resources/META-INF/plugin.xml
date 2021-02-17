@@ -1,12 +1,12 @@
 <idea-plugin>
     <id>com.spotify.scio-idea</id>
     <name>Scio IDEA</name>
-    <version>0.1.21</version>
+    <version>0.1.22</version>
     <vendor url="https://github.com/spotify/scio-idea-plugin">Spotify</vendor>
 
     <description>IntelliJ IDEA plugin for Scio - https://github.com/spotify/scio</description>
 
-    <idea-version since-build="192.0" />
+    <idea-version since-build="203.0" />
 
     <depends>com.intellij.modules.java</depends>
     <depends>org.intellij.scala</depends>
