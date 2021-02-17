@@ -16,4 +16,5 @@ target
 .java-version
 
 .bloop
+.bsp
 .metals
