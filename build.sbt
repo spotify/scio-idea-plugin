@@ -49,25 +49,17 @@ lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPluginName := "scio-idea",
   ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
   ThisBuild / intellijBuild := "203.7148.57",
-  intellijPlugins += "com.intellij.java".toPlugin,
   intellijPlugins += "org.intellij.scala".toPlugin
-)
-
-lazy val packagingSettings = Def.settings(
-  packageMethod := PackagingMethod.Standalone()
 )
 
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
   .settings(commonSettings)
   .settings(ideaSettings)
-  .settings(packagingSettings)
   .settings(
-    name := "scio-idea",
     libraryDependencies ++= Seq(
       Guava,
       Scalatest % Test
-    ),
-    intellijVMOptions := intellijVMOptions.value.copy(gc = "-XX:+UseParallelGC")
+    )
   )
   .enablePlugins(SbtIdeaPlugin)
