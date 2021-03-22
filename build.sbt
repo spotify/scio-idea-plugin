@@ -60,5 +60,6 @@ lazy val scioIdeaPlugin: Project = project
     libraryDependencies ++= Seq(
       Guava,
       Scalatest % Test
-    ),
-  ).enablePlugins(SbtIdeaPlugin)
+    )
+  )
+  .enablePlugins(SbtIdeaPlugin)
