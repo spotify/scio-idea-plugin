@@ -19,7 +19,7 @@ package com.spotify.scio
 
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.{Paths, Files => JFiles}
+import java.nio.file.{Files => JFiles, Paths}
 
 import com.google.common.base.Charsets
 import com.google.common.hash.Hashing
@@ -62,8 +62,8 @@ object AnnotationTypeInjector {
   }
 
   /**
-   * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will
-   * not be able to find scala files.
+   * Finds BigQuery cache file, must be in sync with Scio implementation, otherwise plugin will not
+   * be able to find scala files.
    */
   private def file(filename: String): Option[File] = {
     val sysPropOverride =
