@@ -15,11 +15,11 @@
  * under the License.
  */
 
-lazy val Guava = "com.google.guava" % "guava" % "31.0.1-jre"
-lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.9"
+lazy val Guava = "com.google.guava" % "guava" % "30.1.1-jre"
+lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.11"
 
 lazy val commonSettings = Def.settings(
-  scalaVersion := "2.13.6",
+  scalaVersion := "2.13.8",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
