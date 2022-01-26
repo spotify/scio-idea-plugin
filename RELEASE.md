@@ -10,3 +10,4 @@ Scio-idea-plugin uses [sbt-idea-plugin](https://github.com/JetBrains/sbt-idea-pl
     git push origin X.Y.Z
     ```
 3. GitHub actions will verify and publish to JetBrains. Verify that your plugin was updated [here](https://plugins.jetbrains.com/plugin/8596-scio-idea/versions).
+4. Create a release from the new tag at https://github.com/spotify/scio-idea-plugin/tags.
