@@ -1,0 +1,30 @@
+name: release
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache sbt
+        uses: coursier/cache-action@v5
+      - name: Java 11 setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: 1.11.0
+      - run: sbt test packagePlugin runPluginVerifier
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache sbt
+        uses: coursier/cache-action@v5
+      - name: Java 11 setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: 1.11.0
+      - run: sbt packageArtifactZip publishPlugin
+        env:
+          IJ_PLUGIN_REPO_TOKEN: ${{ secrets.IJ_PLUGIN_TOKEN }}
