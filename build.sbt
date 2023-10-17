@@ -15,7 +15,7 @@
  * under the License.
  */
 
-lazy val Guava = "com.google.guava" % "guava" % "30.1.1-jre"
+lazy val Guava = "com.google.guava" % "guava" % "32.1.3-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.11"
 
 lazy val commonSettings = Def.settings(
