@@ -18,7 +18,7 @@ Inside IntelliJ, `Preferences` -> `Plugins` -> `Browse repositories ...` and sea
 ## Build locally:
 
 ```bash
-sbt packagePlugin
+sbt packageArtifact
 ```
 
 Zipped and ready to install plugin is inside `target`.
