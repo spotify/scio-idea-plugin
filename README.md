@@ -18,11 +18,11 @@ Inside IntelliJ, `Preferences` -> `Plugins` -> `Browse repositories ...` and sea
 ## Build locally:
 
 ```bash
-sbt packageArtifact
+sbt packageArtifactZip
 ```
 
 Zipped and ready to install plugin is inside `target`.
-To install, inside IntelliJ: `Preferences` -> `Plugins` -> `Install plugin from disk`
+To install, inside IntelliJ: `Settings` -> `Plugins` -> `Gear Icon` -> `Install plugin from disk`
 
 # Usage
 
@@ -47,7 +47,7 @@ which sporadically take a while to propagate.
 
 # Logging
 
-This pluging uses IDEA diagnostic logger, you can find log files
+This plugin uses IDEA diagnostic logger, you can find log files
 under standard IntelliJ directory ([doc](https://intellij-support.jetbrains.com/hc/en-us/articles/206544519-Directories-used-by-the-IDE-to-store-settings-caches-plugins-and-logs)). For example for macOS: `~/Library/Logs/<PRODUCT><VERSION>/idea.log`.
 
 If there is error level message logged, it will show up in IntelliJ Event Log.
