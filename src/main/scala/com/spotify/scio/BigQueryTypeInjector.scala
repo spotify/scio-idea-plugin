@@ -112,13 +112,19 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case c: ScClass if bqAnnotation(c).isDefined =>
-        val parent = c.containingClass.getQualifiedName.init
-        val caseClasses = generatedCaseClasses(parent, c).find(_.contains(CaseClassSuper))
+        val result = for {
+          cc <- Option(c.containingClass)
+          qn <- Option(cc.getQualifiedName)
+          parent = qn.init
+          defs <- {
+            generatedCaseClasses(parent, c)
+              .find(_.contains(CaseClassSuper))
+              .map(getApplyPropsSignature)
+              .map(v => s"def $v = ???")
+          }
+        } yield defs
 
-        caseClasses
-          .map(getApplyPropsSignature)
-          .getOrElse(Seq.empty[String])
-          .map(v => s"def $v = ???")
+        result.toSeq
       case _ => Seq.empty
     }
 

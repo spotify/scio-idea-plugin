@@ -47,13 +47,19 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case c: ScClass if avroAnnotation(c).isDefined =>
-        val parent = c.containingClass.getQualifiedName.init
-        val caseClasses = generatedCaseClasses(parent, c).find(_.contains(CaseClassSuper))
+        val result = for {
+          cc <- Option(c.containingClass)
+          qn <- Option(cc.getQualifiedName)
+          parent = qn.init
+          defs <- {
+            generatedCaseClasses(parent, c)
+              .find(_.contains(CaseClassSuper))
+              .map(getApplyPropsSignature)
+              .map(v => s"def $v = ???")
+          }
+        } yield defs
 
-        caseClasses
-          .map(getApplyPropsSignature)
-          .map(v => s"def $v = ???")
-          .toSeq
+        result.toSeq
       case _ => Seq.empty
     }
 
