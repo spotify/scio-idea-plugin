@@ -15,7 +15,7 @@
  * under the License.
  */
 
-lazy val Guava = "com.google.guava" % "guava" % "30.1.1-jre"
+lazy val Guava = "com.google.guava" % "guava" % "32.1.3-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.17"
 
 lazy val commonSettings = Def.settings(
@@ -48,7 +48,7 @@ lazy val commonSettings = Def.settings(
 lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPluginName := "scio-idea",
   ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
-  ThisBuild / intellijBuild := "213.6461.79",
+  ThisBuild / intellijBuild := "232.10072.27",
   intellijPlugins += "org.intellij.scala".toPlugin
 )
 

@@ -106,7 +106,7 @@ object AnnotationTypeInjector {
    */
   def hash(owner: String, srcFile: String): String =
     Hashing
-      .murmur3_32()
+      .murmur3_32_fixed()
       .newHasher()
       .putString(owner, Charsets.UTF_8)
       .putString(srcFile, Charsets.UTF_8)

@@ -18,7 +18,10 @@
 package com.spotify.scio
 
 import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScIntegerLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 
 object BigQueryTypeInjector {
   private val Log = Logger.getInstance(classOf[BigQueryTypeInjector])
@@ -46,13 +49,47 @@ object BigQueryTypeInjector {
       .map(_.getText)
       .find(t => BigQueryAnnotations.exists(t.contains))
 
+  private def bqQuerySignature(sc: ScClass): Option[String] = {
+    sc.annotations.iterator
+      .find(sa => sa.getText.contains(FromQuery))
+      .flatMap { sa =>
+        sa.annotationExpr.getAnnotationParameters.toList match {
+          case Nil       => None // no args
+          case _ :: Nil  => None // only a query
+          case _ :: tail =>
+            // query with args
+            val optResult = tail
+              .foldLeft(Option((0, List.empty[String]))) {
+                case (res @ None, _) => res
+                case (Some((idx, acc)), paramLiteral: ScLiteral) =>
+                  val tpe = "_root_." + paramLiteral.getValue().getClass.getCanonicalName
+                  Some((idx + 1, s"queryArg$$${idx}: ${tpe}" :: acc))
+                case _ => None
+              }
+            optResult.map { case (_, params) => params.reverse.mkString(", ") }
+        }
+      }
+  }
+
   private def fetchExtraBQTypeCompanionMethods(source: ScTypeDefinition, c: ScClass): String = {
     val annotation = bqAnnotation(c).getOrElse("")
     Log.debug(s"Found $annotation in ${source.getQualifiedNameForDebugger}")
 
     annotation match {
       case a if a.contains(FromQuery) =>
-        "def query: _root_.java.lang.String = ???"
+        val simple = """
+          |def query: _root_.java.lang.String = ???
+          |def queryRaw: _root_.java.lang.String = ???
+          |""".stripMargin
+
+        bqQuerySignature(c)
+          .map { params =>
+            simple + s"""
+              |def query($params): _root_.java.lang.String = ???
+              |def queryAsSource($params): _root_.com.spotify.scio.bigquery.Query = ???
+              |""".stripMargin
+          }
+          .getOrElse(simple)
       case a if a.contains(FromTable) =>
         "def table: _root_.java.lang.String = ???"
       case a if a.contains(FromStorage) =>
@@ -75,13 +112,19 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case c: ScClass if bqAnnotation(c).isDefined =>
-        val parent = c.containingClass.getQualifiedName.init
-        val caseClasses = generatedCaseClasses(parent, c).find(_.contains(CaseClassSuper))
+        val result = for {
+          cc <- Option(c.containingClass)
+          qn <- Option(cc.getQualifiedName)
+          parent = qn.init
+          defs <- {
+            generatedCaseClasses(parent, c)
+              .find(_.contains(CaseClassSuper))
+              .map(getApplyPropsSignature)
+              .map(v => s"def $v = ???")
+          }
+        } yield defs
 
-        caseClasses
-          .map(getApplyPropsSignature)
-          .getOrElse(Seq.empty[String])
-          .map(v => s"def $v = ???")
+        result.toSeq
       case _ => Seq.empty
     }
 
