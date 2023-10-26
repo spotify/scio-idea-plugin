@@ -46,7 +46,9 @@ lazy val commonSettings = Def.settings(
 )
 
 // Avoid racing doPatchPluginXml against packageMappings
-packageArtifact := (packageArtifact dependsOn Def.sequential(packageMappings, doPatchPluginXml)).value
+packageArtifact := {
+  packageArtifact dependsOn Def.sequential(packageMappings, doPatchPluginXml)
+}.value
 
 lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPluginName := "scio-idea",
