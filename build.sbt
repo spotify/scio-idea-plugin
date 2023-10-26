@@ -45,11 +45,18 @@ lazy val commonSettings = Def.settings(
   )
 )
 
+lazy val prePackageArtifact = taskKey[Unit]("Force doPatchPluginXml run before artifact is built")
+prePackageArtifact := Def.sequential(packageMappings, doPatchPluginXml).value
+packageArtifact := (packageArtifact dependsOn prePackageArtifact).value
+
 lazy val ideaSettings = Def.settings(
   ThisBuild / intellijPluginName := "scio-idea",
   ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
   ThisBuild / intellijBuild := "232.10072.27",
-  intellijPlugins += "org.intellij.scala".toPlugin
+  intellijPlugins += "org.intellij.scala".toPlugin,
+  patchPluginXml := pluginXmlOptions { xml =>
+    xml.version = version.value
+  }
 )
 
 lazy val scioIdeaPlugin: Project = project
