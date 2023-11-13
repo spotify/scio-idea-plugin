@@ -1,4 +1,4 @@
-# Scio IDEA plugin
+# Scio plugin for IntelliJ IDEA
 
 [![Build Status](https://img.shields.io/github/workflow/status/spotify/scio-idea-plugin/CI)](https://github.com/spotify/scio-idea-plugin/actions?query=workflow%3ACI)
 [![GitHub license](https://img.shields.io/github/license/spotify/scio-idea-plugin.svg)](./LICENSE)
