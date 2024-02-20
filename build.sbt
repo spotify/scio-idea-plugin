@@ -16,7 +16,7 @@
  */
 
 lazy val Guava = "com.google.guava" % "guava" % "32.1.3-jre"
-lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.17"
+lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.18"
 
 lazy val commonSettings = Def.settings(
   scalaVersion := "2.13.12",
