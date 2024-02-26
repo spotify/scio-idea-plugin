@@ -26,8 +26,7 @@ object AvroTypeInjector {
     s"$AvroTNamespace.fromPath",
     s"$AvroTNamespace.toSchema"
   )
-  private val CaseClassSuper =
-    "_root_.scala.Product"
+
   private val HasAvroAnnotationSuper =
     "_root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"
 
@@ -46,19 +45,14 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case c: ScClass if avroAnnotation(c).isDefined =>
-        val result = for {
-          cc <- Option(c.containingClass)
-          qn <- Option(cc.getQualifiedName)
+        val fields = for {
+          cc <- Option(c.containingClass).toSeq
+          qn <- Option(cc.getQualifiedName).toSeq
           parent = qn.init
-          defs <- {
-            generatedCaseClasses(parent, c)
-              .find(_.contains(HasAvroAnnotationSuper))
-              .map(getApplyPropsSignature)
-              .map(v => s"def $v = ???")
-          }
-        } yield defs
-
-        result.toSeq
+          cls <- generatedCaseClasses(parent, c).find(_.contains(HasAvroAnnotationSuper)).toSeq
+          v <- getApplyPropsSignature(cls)
+        } yield s"def $v = ???"
+        CaseClassFunctions ++ fields
       case _ => Seq.empty
     }
 
