@@ -52,11 +52,6 @@ ThisBuild / intellijPluginName := "scio-idea"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild := "232.10072.27"
 
-// Avoid racing doPatchPluginXml against packageMappings
-packageArtifact := {
-  packageArtifact dependsOn Def.sequential(packageMappings, doPatchPluginXml)
-}.value
-
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
   .enablePlugins(SbtIdeaPlugin)
