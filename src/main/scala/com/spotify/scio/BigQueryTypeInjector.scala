@@ -40,6 +40,8 @@ object BigQueryTypeInjector {
   )
 
   private val CaseClassSuper =
+    "_root_.scala.Product"
+  private val HasAnnotationSuper =
     "_root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation"
 
   private def bqAnnotation(sc: ScClass): Option[String] =
@@ -116,7 +118,7 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
           parent = qn.init
           defs <- {
             generatedCaseClasses(parent, c)
-              .find(_.contains(CaseClassSuper))
+              .find(_.contains(HasAnnotationSuper))
               .map(getApplyPropsSignature)
               .map(v => s"def $v = ???")
           }
@@ -128,7 +130,7 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] =
     source match {
-      case c: ScClass if bqAnnotation(c).isDefined => Seq(CaseClassSuper)
+      case c: ScClass if bqAnnotation(c).isDefined => Seq(CaseClassSuper, HasAnnotationSuper)
       case _                                       => Seq.empty
     }
 
@@ -143,7 +145,7 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
         case c: ScClass if bqAnnotation(c).isDefined =>
           val (annotated, other) =
             generatedCaseClasses(source.getQualifiedName.init, c).partition(
-              _.contains(CaseClassSuper)
+              _.contains(HasAnnotationSuper)
             )
           (c, (annotated.headOption, other))
       }
