@@ -19,9 +19,7 @@ package com.spotify.scio
 
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScIntegerLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 
 object BigQueryTypeInjector {
   private val Log = Logger.getInstance(classOf[BigQueryTypeInjector])

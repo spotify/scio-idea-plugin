@@ -19,8 +19,7 @@ package com.spotify.scio
 
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.{Files => JFiles, Paths}
-
+import java.nio.file.{Paths, Files as JFiles}
 import com.google.common.base.Charsets
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
@@ -30,6 +29,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 object AnnotationTypeInjector {
@@ -42,7 +42,7 @@ object AnnotationTypeInjector {
     getConstructorProps(caseClasses).props
 
   def getConstructorProps(caseClasses: String): ConstructorProps = {
-    val CaseClassArgs(params) = caseClasses
+    val CaseClassArgs(params) = caseClasses: @nowarn
     ConstructorProps(TypeArg.findAllIn(params).toSeq)
   }
 
