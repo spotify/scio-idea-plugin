@@ -17,12 +17,9 @@
 
 package com.spotify.scio
 
-import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 object AvroTypeInjector {
-  private val Log = Logger.getInstance(classOf[AvroTypeInjector])
-
   private val AvroTNamespace = "AvroType"
   private val AvroAnnotations = Seq(
     s"$AvroTNamespace.fromSchema",

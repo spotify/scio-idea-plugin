@@ -15,59 +15,58 @@
  * under the License.
  */
 
+disablePlugins(TypelevelCiSigningPlugin)
+
 lazy val Guava = "com.google.guava" % "guava" % "32.1.3-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.18"
 
-lazy val commonSettings = Def.settings(
-  scalaVersion := "2.13.12",
-  scalacOptions ++= Seq(
-    "-deprecation",
-    "-encoding",
-    "utf-8",
-    "-explaintypes",
-    "-feature",
-    "-Xcheckinit",
-    "-Xfatal-warnings",
-    "-Xlint:adapted-args",
-    "-Xlint:constant",
-    "-Xlint:delayedinit-select",
-    "-Xlint:doc-detached",
-    "-Xlint:inaccessible",
-    "-Xlint:infer-any",
-    "-Xlint:missing-interpolator",
-    "-Xlint:nullary-unit",
-    "-Xlint:option-implicit",
-    "-Xlint:package-object-classes",
-    "-Xlint:poly-implicit-overload",
-    "-Xlint:private-shadow",
-    "-Xlint:stars-align",
-    "-Xlint:type-parameter-shadow"
+
+// project
+ThisBuild / tlBaseVersion := "0.1"
+ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / githubWorkflowTargetBranches := Seq("main")
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("11"))
+ThisBuild / tlJdkRelease := Some(8)
+ThisBuild / tlFatalWarnings := true
+ThisBuild / tlCiHeaderCheck := true
+ThisBuild / tlCiScalafmtCheck := true
+ThisBuild / tlCiDocCheck := false
+ThisBuild / tlCiMimaBinaryIssueCheck := false
+ThisBuild / tlCiDependencyGraphJob := false
+ThisBuild / githubWorkflowBuild := Seq(
+  WorkflowStep.Sbt(
+    name = Some("Test"),
+    commands = List("test", "runPluginVerifier", "packageArtifact")
+  ),
+)
+ThisBuild / githubWorkflowPublish := Seq(
+  WorkflowStep.Sbt(
+    name = Some("Publish"),
+    commands = List("packageArtifactZip", "publishPlugin"),
+    env = Map("IJ_PLUGIN_REPO_TOKEN" -> "${{ secrets.IJ_PLUGIN_TOKEN }}")
   )
 )
+
+// idea settings
+ThisBuild / intellijPluginName := "scio-idea"
+ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
+ThisBuild / intellijBuild := "232.10072.27"
 
 // Avoid racing doPatchPluginXml against packageMappings
 packageArtifact := {
   packageArtifact dependsOn Def.sequential(packageMappings, doPatchPluginXml)
 }.value
 
-lazy val ideaSettings = Def.settings(
-  ThisBuild / intellijPluginName := "scio-idea",
-  ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity,
-  ThisBuild / intellijBuild := "232.10072.27",
-  intellijPlugins += "org.intellij.scala".toPlugin,
-  patchPluginXml := pluginXmlOptions { xml =>
-    xml.version = version.value
-  }
-)
-
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
-  .settings(commonSettings)
-  .settings(ideaSettings)
+  .enablePlugins(SbtIdeaPlugin)
   .settings(
     libraryDependencies ++= Seq(
       Guava,
       Scalatest % Test
-    )
+    ),
+    intellijPlugins += "org.intellij.scala".toPlugin,
+    patchPluginXml := pluginXmlOptions { xml =>
+      xml.version = version.value
+    }
   )
-  .enablePlugins(SbtIdeaPlugin)
