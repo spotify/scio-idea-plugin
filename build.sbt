@@ -50,7 +50,7 @@ ThisBuild / githubWorkflowPublish := Seq(
 // idea settings
 ThisBuild / intellijPluginName := "scio-idea"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild := "2022.3.1"
+ThisBuild / intellijBuild := "2022.3.1" // 1st java 17 version
 
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
@@ -63,7 +63,8 @@ lazy val scioIdeaPlugin: Project = project
     intellijPlugins += "org.intellij.scala".toPlugin,
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
-      xml.sinceBuild = "223"
+      // https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
+      xml.sinceBuild = "223" // for 2022.3
     },
     // verify against latest IntelliJ IDEA Community
     pluginVerifierOptions := pluginVerifierOptions.value.copy(
