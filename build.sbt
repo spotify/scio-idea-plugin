@@ -25,8 +25,8 @@ lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.18"
 ThisBuild / tlBaseVersion := "0.1"
 ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("11"))
-ThisBuild / tlJdkRelease := Some(8)
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("17"))
+ThisBuild / tlJdkRelease := Some(17)
 ThisBuild / tlFatalWarnings := true
 ThisBuild / tlCiHeaderCheck := true
 ThisBuild / tlCiScalafmtCheck := true
@@ -50,7 +50,7 @@ ThisBuild / githubWorkflowPublish := Seq(
 // idea settings
 ThisBuild / intellijPluginName := "scio-idea"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild := "232.10072.27"
+ThisBuild / intellijBuild := "2022.3.1"
 
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
@@ -63,5 +63,13 @@ lazy val scioIdeaPlugin: Project = project
     intellijPlugins += "org.intellij.scala".toPlugin,
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
-    }
+      xml.sinceBuild = "223"
+    },
+    // verify against latest IntelliJ IDEA Community
+    pluginVerifierOptions := pluginVerifierOptions.value.copy(
+      overrideIDEs = Seq(
+        intellijBaseDirectory.value.toString,
+        "[latest-IC]"
+      )
+    )
   )
