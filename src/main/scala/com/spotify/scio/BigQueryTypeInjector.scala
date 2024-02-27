@@ -39,7 +39,7 @@ object BigQueryTypeInjector {
     s"$BQTNamespace.toTable"
   )
 
-  private val CaseClassSuper =
+  private val HasAnnotationSuper =
     "_root_.com.spotify.scio.bigquery.types.BigQueryType.HasAnnotation"
 
   private def bqAnnotation(sc: ScClass): Option[String] =
@@ -76,14 +76,12 @@ object BigQueryTypeInjector {
     annotation match {
       case a if a.contains(FromQuery) =>
         val simple = """
-          |def query: _root_.java.lang.String = ???
           |def queryRaw: _root_.java.lang.String = ???
           |""".stripMargin
 
         bqQuerySignature(c)
           .map { params =>
             simple + s"""
-              |def query($params): _root_.java.lang.String = ???
               |def queryAsSource($params): _root_.com.spotify.scio.bigquery.Query = ???
               |""".stripMargin
           }
@@ -110,25 +108,21 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case c: ScClass if bqAnnotation(c).isDefined =>
-        val result = for {
-          cc <- Option(c.containingClass)
-          qn <- Option(cc.getQualifiedName)
+        val fields = for {
+          cc <- Option(c.containingClass).toSeq
+          qn <- Option(cc.getQualifiedName).toSeq
           parent = qn.init
-          defs <- {
-            generatedCaseClasses(parent, c)
-              .find(_.contains(CaseClassSuper))
-              .map(getApplyPropsSignature)
-              .map(v => s"def $v = ???")
-          }
-        } yield defs
-
-        result.toSeq
-      case _ => Seq.empty
+          cls <- generatedCaseClasses(parent, c).find(_.contains(HasAnnotationSuper)).toSeq
+          v <- getApplyPropsSignature(cls)
+        } yield s"def $v = ???"
+        CaseClassFunctions ++ fields
+      case _ =>
+        Seq.empty
     }
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] =
     source match {
-      case c: ScClass if bqAnnotation(c).isDefined => Seq(CaseClassSuper)
+      case c: ScClass if bqAnnotation(c).isDefined => Seq(CaseClassSuper, HasAnnotationSuper)
       case _                                       => Seq.empty
     }
 
@@ -143,7 +137,7 @@ final class BigQueryTypeInjector extends AnnotationTypeInjector {
         case c: ScClass if bqAnnotation(c).isDefined =>
           val (annotated, other) =
             generatedCaseClasses(source.getQualifiedName.init, c).partition(
-              _.contains(CaseClassSuper)
+              _.contains(HasAnnotationSuper)
             )
           (c, (annotated.headOption, other))
       }

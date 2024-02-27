@@ -26,7 +26,8 @@ object AvroTypeInjector {
     s"$AvroTNamespace.fromPath",
     s"$AvroTNamespace.toSchema"
   )
-  private val CaseClassSuper =
+
+  private val HasAvroAnnotationSuper =
     "_root_.com.spotify.scio.avro.types.AvroType.HasAvroAnnotation"
 
   private def avroAnnotation(sc: ScClass): Option[String] =
@@ -44,25 +45,20 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case c: ScClass if avroAnnotation(c).isDefined =>
-        val result = for {
-          cc <- Option(c.containingClass)
-          qn <- Option(cc.getQualifiedName)
+        val fields = for {
+          cc <- Option(c.containingClass).toSeq
+          qn <- Option(cc.getQualifiedName).toSeq
           parent = qn.init
-          defs <- {
-            generatedCaseClasses(parent, c)
-              .find(_.contains(CaseClassSuper))
-              .map(getApplyPropsSignature)
-              .map(v => s"def $v = ???")
-          }
-        } yield defs
-
-        result.toSeq
+          cls <- generatedCaseClasses(parent, c).find(_.contains(HasAvroAnnotationSuper)).toSeq
+          v <- getApplyPropsSignature(cls)
+        } yield s"def $v = ???"
+        CaseClassFunctions ++ fields
       case _ => Seq.empty
     }
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] =
     source match {
-      case c: ScClass if avroAnnotation(c).isDefined => Seq(CaseClassSuper)
+      case c: ScClass if avroAnnotation(c).isDefined => Seq(CaseClassSuper, HasAvroAnnotationSuper)
       case _                                         => Seq.empty
     }
 
@@ -77,7 +73,7 @@ final class AvroTypeInjector extends AnnotationTypeInjector {
         case c: ScClass if avroAnnotation(c).isDefined =>
           val (annotated, other) =
             generatedCaseClasses(source.getQualifiedName.init, c).partition(
-              _.contains(CaseClassSuper)
+              _.contains(HasAvroAnnotationSuper)
             )
           (c, (annotated.headOption, other))
       }

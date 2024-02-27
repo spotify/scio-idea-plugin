@@ -19,7 +19,7 @@ package com.spotify.scio
 
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.{Paths, Files as JFiles}
+import java.nio.file.{Files as JFiles, Paths}
 import com.google.common.base.Charsets
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
@@ -34,6 +34,15 @@ import scala.collection.mutable
 
 object AnnotationTypeInjector {
   private val Log = Logger.getInstance(classOf[AnnotationTypeInjector])
+
+  // case classes implement Product trait
+  val CaseClassSuper: String = "_root_.scala.Product"
+  val CaseClassFunctions: Seq[String] = Seq(
+    "def productArity: _root_.scala.Int = ???",
+    "def productElement(n: _root_.scala.Int): _root_.scala.Any = ???",
+    "def canEqual(x: _root_.scala.Any): _root_.scala.Boolean = ???"
+  )
+
   private val CaseClassArgs = """case\s+class\s+[^(]+\((.*)\).*""".r
   private val TypeArg = """[a-zA-Z0-9_$]+\s*:\s*[a-zA-Z0-9._$]+([\[(](.*?)[)\]]+)?""".r
   private val AlertEveryMissedXInvocations = 5
