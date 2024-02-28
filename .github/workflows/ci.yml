@@ -51,6 +51,12 @@ jobs:
         if: matrix.java == 'corretto@17' && steps.setup-java-corretto-17.outputs.cache-hit == 'false'
         run: sbt +update
 
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.scio-ideaPluginIC
+          key: idea-2022.3.1
+
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
 
@@ -99,6 +105,12 @@ jobs:
       - name: sbt update
         if: matrix.java == 'corretto@17' && steps.setup-java-corretto-17.outputs.cache-hit == 'false'
         run: sbt +update
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.scio-ideaPluginIC
+          key: idea-2022.3.1
 
       - name: Download target directories (2.13)
         uses: actions/download-artifact@v4

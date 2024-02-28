@@ -20,6 +20,11 @@ disablePlugins(TypelevelCiSigningPlugin)
 lazy val Guava = "com.google.guava" % "guava" % "32.1.3-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.18"
 
+// idea settings
+lazy val intelliJVersion = "2022.3.1"
+ThisBuild / intellijPluginName := "scio-idea"
+ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
+ThisBuild / intellijBuild := intelliJVersion
 
 // project
 ThisBuild / tlBaseVersion := "0.1"
@@ -46,11 +51,17 @@ ThisBuild / githubWorkflowPublish := Seq(
     env = Map("IJ_PLUGIN_REPO_TOKEN" -> "${{ secrets.IJ_PLUGIN_TOKEN }}")
   )
 )
-
-// idea settings
-ThisBuild / intellijPluginName := "scio-idea"
-ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild := "2022.3.1" // 1st java 17 version
+val cache = UseRef.Public("actions", "cache", "v4")
+ThisBuild / githubWorkflowGeneratedCacheSteps := Seq(
+  WorkflowStep.Use(
+    name = Some("Cache"),
+    ref = cache,
+    params = Map(
+      "path" -> "~/.scio-ideaPluginIC",
+      "key" -> s"idea-$intelliJVersion",
+    )
+  )
+)
 
 lazy val scioIdeaPlugin: Project = project
   .in(file("."))
