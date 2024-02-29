@@ -28,7 +28,7 @@ ThisBuild / intellijBuild := intelliJVersion
 
 // project
 ThisBuild / tlBaseVersion := "0.1"
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.13"
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("17"))
 ThisBuild / tlJdkRelease := Some(17)
@@ -42,7 +42,7 @@ ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     name = Some("Test"),
     commands = List("test", "runPluginVerifier", "packageArtifact")
-  ),
+  )
 )
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
@@ -58,7 +58,7 @@ ThisBuild / githubWorkflowGeneratedCacheSteps := Seq(
     ref = cache,
     params = Map(
       "path" -> "~/.scio-ideaPluginIC",
-      "key" -> s"idea-$intelliJVersion",
+      "key" -> s"idea-$intelliJVersion"
     )
   )
 )
