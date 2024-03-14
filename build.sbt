@@ -17,7 +17,7 @@
 
 disablePlugins(TypelevelCiSigningPlugin)
 
-lazy val Guava = "com.google.guava" % "guava" % "32.1.3-jre"
+lazy val Guava = "com.google.guava" % "guava" % "33.1.0-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.18"
 
 // idea settings
@@ -42,7 +42,7 @@ ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     name = Some("Test"),
     commands = List("test", "runPluginVerifier", "packageArtifact")
-  ),
+  )
 )
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
@@ -58,7 +58,7 @@ ThisBuild / githubWorkflowGeneratedCacheSteps := Seq(
     ref = cache,
     params = Map(
       "path" -> "~/.scio-ideaPluginIC",
-      "key" -> s"idea-$intelliJVersion",
+      "key" -> s"idea-$intelliJVersion"
     )
   )
 )
