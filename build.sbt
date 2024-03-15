@@ -42,7 +42,7 @@ ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     name = Some("Test"),
     commands = List("test", "runPluginVerifier", "packageArtifact")
-  ),
+  )
 )
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
@@ -58,7 +58,7 @@ ThisBuild / githubWorkflowGeneratedCacheSteps := Seq(
     ref = cache,
     params = Map(
       "path" -> "~/.scio-ideaPluginIC",
-      "key" -> s"idea-$intelliJVersion",
+      "key" -> s"idea-$intelliJVersion"
     )
   )
 )
