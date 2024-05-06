@@ -28,7 +28,7 @@ ThisBuild / intellijBuild := intelliJVersion
 
 // project
 ThisBuild / tlBaseVersion := "0.1"
-ThisBuild / scalaVersion := "2.13.13"
+ThisBuild / scalaVersion := "2.13.14"
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("17"))
 ThisBuild / tlJdkRelease := Some(17)
