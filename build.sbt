@@ -18,7 +18,7 @@
 disablePlugins(TypelevelCiSigningPlugin)
 
 lazy val Guava = "com.google.guava" % "guava" % "33.2.1-jre"
-lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.18"
+lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.19"
 
 // idea settings
 lazy val intelliJVersion = "2022.3.1"
