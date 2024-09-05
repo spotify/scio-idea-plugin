@@ -14,6 +14,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import org.jetbrains.sbtidea.verifier.FailureLevel
+import scala.jdk.CollectionConverters._
 
 disablePlugins(TypelevelCiSigningPlugin)
 
@@ -77,11 +79,15 @@ lazy val scioIdeaPlugin: Project = project
       // https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
       xml.sinceBuild = "223" // for 2022.3
     },
-    // verify against latest IntelliJ IDEA Community
     pluginVerifierOptions := pluginVerifierOptions.value.copy(
+      // verify against latest IntelliJ IDEA Community
       overrideIDEs = Seq(
         intellijBaseDirectory.value.toString,
         "[latest-IC]"
-      )
+      ),
+      // allow experimental API usages
+      failureLevels = FailureLevel.ALL.asScala
+        .filter(_ != FailureLevel.EXPERIMENTAL_API_USAGES)
+        .toSet
     )
   )
