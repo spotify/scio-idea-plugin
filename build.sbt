@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters._
 
 disablePlugins(TypelevelCiSigningPlugin)
 
-lazy val Guava = "com.google.guava" % "guava" % "33.2.1-jre"
+lazy val Guava = "com.google.guava" % "guava" % "33.3.0-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.19"
 
 // idea settings
