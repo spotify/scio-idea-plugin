@@ -23,17 +23,19 @@ lazy val Guava = "com.google.guava" % "guava" % "33.3.1-jre"
 lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.19"
 
 // idea settings
-lazy val intelliJVersion = "2022.3.1"
+// https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
+lazy val intellijBranchNumber = "242.2"
+// https://www.jetbrains.com/idea/download/other.html
+ThisBuild / intellijBuild := "242.20224.300"
 ThisBuild / intellijPluginName := "scio-idea"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild := intelliJVersion
 
 // project
 ThisBuild / tlBaseVersion := "0.1"
 ThisBuild / scalaVersion := "2.13.15"
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("17"))
-ThisBuild / tlJdkRelease := Some(17)
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("21"))
+ThisBuild / tlJdkRelease := Some(21)
 ThisBuild / tlFatalWarnings := true
 ThisBuild / tlCiHeaderCheck := true
 ThisBuild / tlCiScalafmtCheck := true
@@ -60,7 +62,7 @@ ThisBuild / githubWorkflowGeneratedCacheSteps := Seq(
     ref = cache,
     params = Map(
       "path" -> "~/.scio-ideaPluginIC",
-      "key" -> s"idea-$intelliJVersion"
+      "key" -> s"idea-$intellijBranchNumber"
     )
   )
 )
@@ -76,14 +78,13 @@ lazy val scioIdeaPlugin: Project = project
     intellijPlugins += "org.intellij.scala".toPlugin,
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
-      // https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
-      xml.sinceBuild = "223" // for 2022.3
+      xml.sinceBuild = intellijBuild.value
     },
     pluginVerifierOptions := pluginVerifierOptions.value.copy(
       // verify against latest IntelliJ IDEA Community
       overrideIDEs = Seq(
         intellijBaseDirectory.value.toString,
-        "[latest-IC]"
+        "[latest-release-IC]"
       ),
       // allow experimental API usages
       failureLevels = FailureLevel.ALL.asScala
