@@ -29,7 +29,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         scala: [2.13]
-        java: [corretto@17]
+        java: [corretto@21]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -41,24 +41,24 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Setup Java (corretto@17)
-        id: setup-java-corretto-17
-        if: matrix.java == 'corretto@17'
+      - name: Setup Java (corretto@21)
+        id: setup-java-corretto-21
+        if: matrix.java == 'corretto@21'
         uses: actions/setup-java@v4
         with:
           distribution: corretto
-          java-version: 17
+          java-version: 21
           cache: sbt
 
       - name: sbt update
-        if: matrix.java == 'corretto@17' && steps.setup-java-corretto-17.outputs.cache-hit == 'false'
+        if: matrix.java == 'corretto@21' && steps.setup-java-corretto-21.outputs.cache-hit == 'false'
         run: sbt +update
 
       - name: Cache
         uses: actions/cache@v4
         with:
           path: ~/.scio-ideaPluginIC
-          key: idea-2022.3.1
+          key: idea-242.2
 
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
@@ -88,7 +88,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04]
-        java: [corretto@17]
+        java: [corretto@21]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
@@ -99,24 +99,24 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Setup Java (corretto@17)
-        id: setup-java-corretto-17
-        if: matrix.java == 'corretto@17'
+      - name: Setup Java (corretto@21)
+        id: setup-java-corretto-21
+        if: matrix.java == 'corretto@21'
         uses: actions/setup-java@v4
         with:
           distribution: corretto
-          java-version: 17
+          java-version: 21
           cache: sbt
 
       - name: sbt update
-        if: matrix.java == 'corretto@17' && steps.setup-java-corretto-17.outputs.cache-hit == 'false'
+        if: matrix.java == 'corretto@21' && steps.setup-java-corretto-21.outputs.cache-hit == 'false'
         run: sbt +update
 
       - name: Cache
         uses: actions/cache@v4
         with:
           path: ~/.scio-ideaPluginIC
-          key: idea-2022.3.1
+          key: idea-242.2
 
       - name: Download target directories (2.13)
         uses: actions/download-artifact@v4
