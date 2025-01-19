@@ -32,7 +32,7 @@ ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 
 // project
 ThisBuild / tlBaseVersion := "0.1"
-ThisBuild / scalaVersion := "2.13.15"
+ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.corretto("21"))
 ThisBuild / tlJdkRelease := Some(21)
