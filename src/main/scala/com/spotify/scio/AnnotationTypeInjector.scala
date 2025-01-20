@@ -18,9 +18,8 @@
 package com.spotify.scio
 
 import java.io.File
-import java.nio.charset.Charset
-import java.nio.file.{Files as JFiles, Paths}
-import com.google.common.base.Charsets
+import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.file.{Paths, Files as JFiles}
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import com.intellij.notification.{Notification, NotificationType, Notifications}
@@ -117,8 +116,8 @@ object AnnotationTypeInjector {
     Hashing
       .murmur3_32_fixed()
       .newHasher()
-      .putString(owner, Charsets.UTF_8)
-      .putString(srcFile, Charsets.UTF_8)
+      .putString(owner, StandardCharsets.UTF_8)
+      .putString(srcFile, StandardCharsets.UTF_8)
       .hash()
       .toString
 }
