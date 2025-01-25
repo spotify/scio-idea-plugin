@@ -19,7 +19,7 @@ package com.spotify.scio
 
 import java.io.File
 import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Paths, Files as JFiles}
+import java.nio.file.{Files as JFiles, Paths}
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import com.intellij.notification.{Notification, NotificationType, Notifications}
