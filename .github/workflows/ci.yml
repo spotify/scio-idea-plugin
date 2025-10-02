@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.scio-ideaPluginIC
-          key: idea-242.2
+          key: idea-252.2
 
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
@@ -116,7 +116,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.scio-ideaPluginIC
-          key: idea-242.2
+          key: idea-252.2
 
       - name: Download target directories (2.13)
         uses: actions/download-artifact@v4
