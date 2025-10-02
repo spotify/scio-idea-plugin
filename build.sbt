@@ -81,6 +81,7 @@ lazy val scioIdeaPlugin: Project = project
       xml.sinceBuild = intellijBuild.value
     },
     pluginVerifierOptions := pluginVerifierOptions.value.copy(
+      version = "1.381", // newer verifiers fail
       // verify against latest IntelliJ IDEA Community
       overrideIDEs = Seq(
         intellijBaseDirectory.value.toString,
