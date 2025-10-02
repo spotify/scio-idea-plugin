@@ -26,7 +26,7 @@ lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.19"
 // https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
 lazy val intellijBranchNumber = "252.2"
 // https://www.jetbrains.com/idea/download/other.html
-ThisBuild / intellijBuild := "252.25557.131"
+ThisBuild / intellijBuild := "252.26199.169"
 ThisBuild / intellijPluginName := "scio-idea"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 
