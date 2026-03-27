@@ -20,7 +20,7 @@ import scala.jdk.CollectionConverters._
 disablePlugins(TypelevelCiSigningPlugin)
 
 lazy val Guava = "com.google.guava" % "guava" % "33.4.0-jre"
-lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.19"
+lazy val Scalatest = "org.scalatest" %% "scalatest" % "3.2.20"
 
 // idea settings
 // https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
