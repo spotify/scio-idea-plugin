@@ -58,7 +58,7 @@ object BigQueryTypeInjector {
             // query with args
             val optResult = tail
               .foldLeft(Option((0, List.empty[String]))) {
-                case (res @ None, _) => res
+                case (res @ None, _)                             => res
                 case (Some((idx, acc)), paramLiteral: ScLiteral) =>
                   val tpe = "_root_." + paramLiteral.getValue().getClass.getCanonicalName
                   Some((idx + 1, s"queryArg$$${idx}: ${tpe}" :: acc))
